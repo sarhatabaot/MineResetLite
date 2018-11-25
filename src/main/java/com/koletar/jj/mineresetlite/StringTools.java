@@ -14,7 +14,7 @@ public class StringTools {
      * @param stop Number of elements at the <b>end of the array</b> to ignore, <u>not</u> a stopping index.
      * @return Reconstructed spaced argument
      */
-    public static String buildSpacedArgument(String[] args, int start, int stop) {
+    private static String buildSpacedArgument(String[] args, int start, int stop) {
         StringBuilder sb = new StringBuilder();
         for (int i = start; i < args.length - stop; i++) {
             sb.append(args[i]);
@@ -34,7 +34,7 @@ public class StringTools {
         return buildSpacedArgument(args, 0);
     }
 
-    public static String buildList(Object[] items, String prefix, String suffix) {
+    private static String buildList(Object[] items, String prefix, String suffix) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < items.length; i++) {
             sb.append(prefix);

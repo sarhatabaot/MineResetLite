@@ -17,11 +17,11 @@ public class Config {
     private static boolean checkForUpdates = true;
     private static String locale = "en";
 
-    public static boolean getBroadcastInWorldOnly() {
+    static boolean getBroadcastInWorldOnly() {
         return broadcastInWorldOnly;
     }
 
-    public static boolean getBroadcastNearbyOnly() {
+    static boolean getBroadcastNearbyOnly() {
         return broadcastNearbyOnly;
     }
 
@@ -33,7 +33,7 @@ public class Config {
         Config.broadcastNearbyOnly = broadcastNearbyOnly;
     }
 
-    public static void writeBroadcastInWorldOnly(BufferedWriter out) throws IOException {
+    private static void writeBroadcastInWorldOnly(BufferedWriter out) throws IOException {
         out.write("# If you have multiple worlds, and wish for only the worlds in which your mine resides to receive");
         out.newLine();
         out.write("# reset notifications, and automatic reset warnings, set this to true.");
@@ -42,7 +42,7 @@ public class Config {
         out.newLine();
     }
 
-    public static void writeBroadcastNearbyOnly(BufferedWriter out) throws IOException {
+    private static void writeBroadcastNearbyOnly(BufferedWriter out) throws IOException {
         out.write("# If you only want players nearby the mines to receive reset notifications,");
         out.newLine();
         out.write("# and automatic reset warnings, set this to true. Note: Currently only broadcasts to players in the mine");
@@ -59,7 +59,7 @@ public class Config {
         Config.checkForUpdates = checkForUpdates;
     }
 
-    public static void writeCheckForUpdates(BufferedWriter out) throws IOException {
+    private static void writeCheckForUpdates(BufferedWriter out) throws IOException {
         out.write("# When true, this config option enables update alerts. I do not send any extra information along when ");
         out.newLine();
         out.write("# checking, and query a static file hosted on Dropbox. ");
@@ -68,15 +68,15 @@ public class Config {
         out.newLine();
     }
 
-    public static String getLocale() {
+    static String getLocale() {
         return locale;
     }
 
-    protected static void setLocale(String locale) {
+    private static void setLocale(String locale) {
         Config.locale = locale;
     }
 
-    public static void writeLocale(BufferedWriter out) throws IOException {
+    private static void writeLocale(BufferedWriter out) throws IOException {
         out.write("# MineResetLite supports multiple languages. Indicate the language to be used here.");
         out.newLine();
         out.write("# Languages available at the time this config was generated: Danish (thanks Beijiru), Spanish (thanks enetocs), Portuguese (thanks FelipeMarques14), Italian (thanks JoLong)");
@@ -89,7 +89,7 @@ public class Config {
         out.newLine();
     }
 
-    public static void initConfig(File dataFolder) throws IOException {
+    static void initConfig(File dataFolder) throws IOException {
         if (!dataFolder.exists()) {
             dataFolder.mkdir();
         }
