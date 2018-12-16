@@ -1,8 +1,9 @@
 package com.koletar.jj.mineresetlite.commands;
 
 import com.koletar.jj.mineresetlite.*;
-import com.vk2gpz.mineresetlite.util.WorldGuardUtil;
-import com.vk2gpz.vklib.mc.material.MaterialUtil;
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.sk89q.worldedit.bukkit.selections.Selection;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -21,6 +22,8 @@ public class MineCommands {
 	private MineResetLite plugin;
 	private Map<Player, Location> point1;
 	private Map<Player, Location> point2;
+
+	private WorldEditPlugin worldEditPlugin = null;
 	
 	public MineCommands(MineResetLite plugin) {
 		this.plugin = plugin;
@@ -108,11 +111,13 @@ public class MineCommands {
 			p1 = point1.get(player).toVector();
 			p2 = point2.get(player).toVector();
 		}
-		Object[] selections = WorldGuardUtil.getSelection(plugin, player);
-		if (selections != null) {
-			world = (World)selections[0];
-			p1 = (Vector)selections[1];
-			p2 = (Vector)selections[2];
+		worldEditPlugin = (WorldEditPlugin) Bukkit.getPluginManager().getPlugin("WorldEdit");
+		Selection selection = worldEditPlugin.getSelection(player);
+		//Object[] selections = WorldGuardUtil.getSelection(plugin, player);
+		if (selection != null) {
+			world = selection.getWorld();
+			p1 = selection.getMinimumPoint().toVector();
+			p2 = selection.getMaximumPoint().toVector();
 		}
 		
 		if (p1 == null) {
@@ -166,7 +171,7 @@ public class MineCommands {
 		for (Map.Entry<SerializableBlock, Double> entry : mines[0].getComposition().entrySet()) {
 			csb.append(entry.getValue() * 100);
 			csb.append("% ");
-			csb.append(MaterialUtil.getMaterial("" + entry.getKey().getBlockId()).toString());
+			csb.append(Material.getMaterial("" + entry.getKey().getBlockId()).toString());
 			if (entry.getKey().getData() != 0) {
 				csb.append(":");
 				csb.append(entry.getKey().getData());
@@ -217,12 +222,12 @@ public class MineCommands {
 		if (invalidMInes(sender, mines)) return;
 		//Match material
 		String[] bits = args[args.length - 2].split(":");
-		Material m = plugin.matchMaterial(bits[0]);
-		if (m == null) {
+		Material material = plugin.matchMaterial(bits[0]);
+		if (material == null) {
 			sender.sendMessage(phrase("unknownBlock"));
 			return;
 		}
-		if (!m.isBlock()) {
+		if (!material.isBlock()) {
 			sender.sendMessage(phrase("notABlock"));
 			return;
 		}
@@ -255,7 +260,7 @@ public class MineCommands {
 			return;
 		}
 		percentage = percentage / 100; //Make it a programmatic percentage
-		SerializableBlock block = new SerializableBlock(m.getId(), data);
+		SerializableBlock block = new SerializableBlock(material.getId(), data);
 		Double oldPercentage = mines[0].getComposition().get(block);
 		double total = 0;
 		for (Map.Entry<SerializableBlock, Double> entry : mines[0].getComposition().entrySet()) {
@@ -290,12 +295,12 @@ public class MineCommands {
 		if (invalidMInes(sender, mines)) return;
 		//Match material
 		String[] bits = args[args.length - 1].split(":");
-		Material m = plugin.matchMaterial(bits[0]);
-		if (m == null) {
+		Material material = plugin.matchMaterial(bits[0]);
+		if (material == null) {
 			sender.sendMessage(phrase("unknownBlock"));
 			return;
 		}
-		if (!m.isBlock()) {
+		if (!material.isBlock()) {
 			sender.sendMessage(phrase("notABlock"));
 			return;
 		}
@@ -309,7 +314,7 @@ public class MineCommands {
 			}
 		}
 		//Does the mine contain this block?
-		SerializableBlock block = new SerializableBlock(m.getId(), data);
+		SerializableBlock block = new SerializableBlock(material.getId(), data);
 		for (Map.Entry<SerializableBlock, Double> entry : mines[0].getComposition().entrySet()) {
 			if (entry.getKey().equals(block)) {
 				mines[0].getComposition().remove(entry.getKey());
@@ -349,7 +354,6 @@ public class MineCommands {
 					"resetDelay: An integer number of minutes specifying the time between automatic resets. Set to 0 to disable automatic resets.",
 					"resetWarnings: A comma separated list of integer minutes to warn before the automatic reset. Warnings must be less than the reset delay.",
 					"surface: A block that will cover the entire top surface of the mine when reset, obscuring surface ores. Set surface to air to clear the value.",
-					"fillMode: An alternate reset algorithm that will only \"reset\" air blocks inside your mine. Set to true or false.",
 					"fillMode: An alternate reset algorithm that will only \"reset\" air blocks inside your mine. Set to true or false.",
 					"isSilent: A boolean (true or false) of whether or not this mine should broadcast a reset notification when it is reset *automatically*"},
 			usage = "<mine name> <setting> <value>",
