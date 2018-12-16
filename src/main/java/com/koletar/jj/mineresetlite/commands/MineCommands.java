@@ -22,8 +22,6 @@ public class MineCommands {
 	private MineResetLite plugin;
 	private Map<Player, Location> point1;
 	private Map<Player, Location> point2;
-
-	private WorldEditPlugin worldEditPlugin = null;
 	
 	public MineCommands(MineResetLite plugin) {
 		this.plugin = plugin;
@@ -111,7 +109,7 @@ public class MineCommands {
 			p1 = point1.get(player).toVector();
 			p2 = point2.get(player).toVector();
 		}
-		worldEditPlugin = (WorldEditPlugin) Bukkit.getPluginManager().getPlugin("WorldEdit");
+		WorldEditPlugin worldEditPlugin = (WorldEditPlugin) Bukkit.getPluginManager().getPlugin("WorldEdit");
 		Selection selection = worldEditPlugin.getSelection(player);
 		if (selection != null) {
 			world = selection.getWorld();
