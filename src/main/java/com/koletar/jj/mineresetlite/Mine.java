@@ -1,7 +1,6 @@
 package com.koletar.jj.mineresetlite;
 
 import com.koletar.jj.mineresetlite.events.MineUpdatedEvent;
-import com.vk2gpz.vklib.reflection.ReflectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -26,12 +25,14 @@ import java.util.logging.Logger;
  * @author jjkoletar
  */
 public class Mine implements ConfigurationSerializable {
-	private int minX;
+	private Position minPos;
+	private Position maxPos;
+	/*private int minX;
 	private int minY;
 	private int minZ;
 	private int maxX;
 	private int maxY;
-	private int maxZ;
+	private int maxZ;*/
 	private World world;
 	private Map<SerializableBlock, Double> composition;
 	private int resetDelay;
@@ -41,11 +42,13 @@ public class Mine implements ConfigurationSerializable {
 	private boolean fillMode;
 	private int resetClock;
 	private boolean isSilent;
+	private TeleportPosition teleportPosition;
+	/*
 	private int tpX = 0;
 	private int tpY = -Integer.MAX_VALUE;
 	private int tpZ = 0;
 	private int tpYaw = 0;
-	private int tpPitch = 0;
+	private int tpPitch = 0;*/
 	
 	// from MineResetLitePlus
 	private double resetPercent = -1.0;
@@ -54,7 +57,18 @@ public class Mine implements ConfigurationSerializable {
 	
 	private List<PotionEffect> potions = new ArrayList<>();
 
-	public Mine(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, String name, World world) {
+	public Mine(Position minPos,Position maxPos, String name, World world){
+		this.minPos = minPos;
+		this.maxPos = maxPos;
+		this.name = name;
+		this.world = world;
+
+		composition = new HashMap<>();
+		resetWarnings = new LinkedList<>();
+		setMaxCount();
+	}
+
+	/*public Mine(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, String name, World world) {
 		this.minX = minX;
 		this.minY = minY;
 		this.minZ = minZ;
@@ -67,16 +81,22 @@ public class Mine implements ConfigurationSerializable {
 		resetWarnings = new LinkedList<>();
 		
 		setMaxCount();
-	}
-	
+	}*/
+
+	/**
+	 * Deserialize
+	 */
 	public Mine(Map<String, Object> me) {
 		try {
+			this.minPos = (Position) me.get("minPos");
+			this.maxPos = (Position) me.get("maxPos");
+			/*
 			minX = (Integer) me.get("minX");
 			minY = (Integer) me.get("minY");
 			minZ = (Integer) me.get("minZ");
 			maxX = (Integer) me.get("maxX");
 			maxY = (Integer) me.get("maxY");
-			maxZ = (Integer) me.get("maxZ");
+			maxZ = (Integer) me.get("maxZ");*/
 			
 			setMaxCount();
 		} catch (Throwable t) {
@@ -132,6 +152,10 @@ public class Mine implements ConfigurationSerializable {
 		if (me.containsKey("isSilent")) {
 			isSilent = (Boolean) me.get("isSilent");
 		}
+		if (me.containsKey("tpPos")) {
+			teleportPosition = (TeleportPosition) me.get("tpPos");
+		}
+		/*
 		if (me.containsKey("tpY")) { // Should contain all three if it contains this one
 			tpX = (int) me.get("tpX");
 			tpY = (int) me.get("tpY");
@@ -141,7 +165,7 @@ public class Mine implements ConfigurationSerializable {
 		if (me.containsKey("tpYaw")) {
 			tpYaw = (int) me.get("tpYaw");
 			tpPitch = (int) me.get("tpPitch");
-		}
+		}*/
 		
 		if (me.containsKey("resetPercent")) {
 			resetPercent = (double) me.get("resetPercent");
@@ -164,12 +188,9 @@ public class Mine implements ConfigurationSerializable {
 	
 	public Map<String, Object> serialize() {
 		Map<String, Object> me = new HashMap<>();
-		me.put("minX", minX);
-		me.put("minY", minY);
-		me.put("minZ", minZ);
-		me.put("maxX", maxX);
-		me.put("maxY", maxY);
-		me.put("maxZ", maxZ);
+		me.put("maxPos",maxPos.serialize());
+		me.put("minPos",minPos.serialize());
+
 		me.put("world", world.getName());
 		//Make string form of composition
 		Map<String, Double> sComposition = new HashMap<>();
@@ -192,11 +213,7 @@ public class Mine implements ConfigurationSerializable {
 		me.put("fillMode", fillMode);
 		me.put("resetClock", resetClock);
 		me.put("isSilent", isSilent);
-		me.put("tpX", tpX);
-		me.put("tpY", tpY);
-		me.put("tpZ", tpZ);
-		me.put("tpYaw", tpYaw);
-		me.put("tpPitch", tpPitch);
+		me.put("tpPos",teleportPosition.serialize());
 		
 		me.put("resetPercent", resetPercent);
 		
@@ -286,26 +303,37 @@ public class Mine implements ConfigurationSerializable {
 	
 	public boolean isInside(Location l) {
 		return l.getWorld().equals(world)
-				&& (l.getBlockX() >= minX && l.getBlockX() <= maxX)
-				&& (l.getBlockY() >= minY && l.getBlockY() <= maxY)
-				&& (l.getBlockZ() >= minZ && l.getBlockZ() <= maxZ);
+				&& (l.getBlockX() >= minPos.getX() && l.getBlockX() <= maxPos.getX())
+				&& (l.getBlockY() >= minPos.getY() && l.getBlockY() <= maxPos.getY())
+				&& (l.getBlockZ() >= minPos.getZ() && l.getBlockZ() <= maxPos.getZ());
 	}
 	
 	public void setTp(Location l) {
+		this.teleportPosition = new TeleportPosition(l.getBlockX(),
+				l.getBlockY(),
+				l.getBlockZ(),
+				(int)l.getPitch(),
+				(int)l.getYaw());
+		/*
 		tpX = l.getBlockX();
 		tpY = l.getBlockY();
 		tpZ = l.getBlockZ();
 		tpYaw = (int) l.getYaw();
-		tpPitch = (int) l.getPitch();
+		tpPitch = (int) l.getPitch();*/
 	}
 	
 	private Location getTp() {
-		return new Location(getWorld(), tpX, tpY, tpZ, tpYaw, tpPitch);
+		return new Location(getWorld(),
+				teleportPosition.getX(),
+				teleportPosition.getY(),
+				teleportPosition.getZ(),
+				teleportPosition.getYaw(),
+				teleportPosition.getPitch());
 	}
 
 	@NotNull
 	private Location getSafeLocation(Location playerLocation){
-		Location location = new Location(world, playerLocation.getX(), maxY + 1D, playerLocation.getZ());
+		Location location = new Location(world, playerLocation.getX(), maxPos.getY() + 1D, playerLocation.getZ());
 		Block block = location.getBlock();
 
 		// check to make sure we don't suffocate player
@@ -321,7 +349,7 @@ public class Mine implements ConfigurationSerializable {
 		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
 			Location playerLocation = player.getLocation();
 			if (isInside(player)) {
-				if (tpY > -Integer.MAX_VALUE) {
+				if (teleportPosition.getY() > -Integer.MAX_VALUE) {
 					player.teleport(getTp());
 				} else {
 					Location safeLocation = getSafeLocation(playerLocation);
@@ -337,17 +365,17 @@ public class Mine implements ConfigurationSerializable {
 		teleportPlayers();
 		//Actually reset
 		Random rand = new Random();
-		for (int x = minX; x <= maxX; ++x) {
-			for (int y = minY; y <= maxY; ++y) {
-				for (int z = minZ; z <= maxZ; ++z) {
+		for (int x = minPos.getX(); x <= maxPos.getX(); ++x) {
+			for (int y = minPos.getY(); y <= maxPos.getY(); ++y) {
+				for (int z = minPos.getZ(); z <= maxPos.getZ(); ++z) {
 					if (!fillMode || world.getBlockAt(x, y, z).getType() == Material.AIR) {
-						if (y == maxY && surface != null) {
+						if (y == maxPos.getY() && surface != null) {
 							//world.getBlockAt(x, y, z).setTypeIdAndData(surface.getBlockId(), surface.getData(), false);
 							Block block = world.getBlockAt(x, y, z);
 							block.setType(surface.getBlockType());
 							if (surface.getData() > 0) {
 								try {
-									ReflectionUtil.makePerform(block, "setData", new Object[]{surface.getData()});
+									//ReflectionUtil.makePerform(block, "setData", new Object[]{surface.getData()});
 								} catch (Throwable ignore) {
 								
 								}
@@ -362,7 +390,7 @@ public class Mine implements ConfigurationSerializable {
 								b.setType(ce.getBlock().getBlockType());
 								if (ce.getBlock().getData() > 0) {
 									try {
-										ReflectionUtil.makePerform(b, "setData", new Object[]{ce.getBlock().getData()});
+										//ReflectionUtil.makePerform(b, "setData", new Object[]{ce.getBlock().getData()});
 									} catch (Throwable ignore) {
 									
 									}
@@ -444,8 +472,10 @@ public class Mine implements ConfigurationSerializable {
 		if (!getTp().equals(new Location(world, 0, -Integer.MAX_VALUE, 0))) {
 			location = getTp();
 		} else {
-			Location max = new Location(world, Math.max(this.maxX, this.minX), this.maxY, Math.max(this.maxZ, this.minZ));
-			Location min = new Location(world, Math.min(this.maxX, this.minX), this.minY, Math.min(this.maxZ, this.minZ));
+			Location max = new Location(world,
+					Math.max(this.maxPos.getX(), this.minPos.getX()), this.maxPos.getY(), Math.max(this.maxPos.getZ(), this.minPos.getZ()));
+			Location min = new Location(world,
+					Math.min(this.maxPos.getX(), this.minPos.getX()), this.minPos.getY(), Math.min(this.maxPos.getZ(), this.minPos.getZ()));
 			
 			location = max.add(min).multiply(0.5);
 			Block block = location.getBlock();
@@ -459,9 +489,9 @@ public class Mine implements ConfigurationSerializable {
 	}
 	
 	private void setMaxCount() {
-		int dx = maxX - minX + 1;
-		int dy = maxY - minY + 1;
-		int dz = maxZ - minZ + 1;
+		int dx = maxPos.getX() - minPos.getX() + 1;
+		int dy = maxPos.getY() - minPos.getY() + 1;
+		int dz = maxPos.getZ() - minPos.getZ() + 1;
 		
 		this.maxCount = dx * dy * dz;
 	}

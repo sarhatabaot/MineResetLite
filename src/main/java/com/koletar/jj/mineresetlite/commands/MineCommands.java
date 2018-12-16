@@ -113,7 +113,6 @@ public class MineCommands {
 		}
 		worldEditPlugin = (WorldEditPlugin) Bukkit.getPluginManager().getPlugin("WorldEdit");
 		Selection selection = worldEditPlugin.getSelection(player);
-		//Object[] selections = WorldGuardUtil.getSelection(plugin, player);
 		if (selection != null) {
 			world = selection.getWorld();
 			p1 = selection.getMinimumPoint().toVector();
@@ -150,7 +149,12 @@ public class MineCommands {
 			p2.setZ(z);
 		}
 		//Create!
-		Mine newMine = new Mine(p1.getBlockX(), p1.getBlockY(), p1.getBlockZ(), p2.getBlockX(), p2.getBlockY(), p2.getBlockZ(), name, world);
+        /** TODO: Convert to new Position class use
+         */
+        Position minPos = new Position(p1.getBlockX(),p1.getBlockY(),p1.getBlockZ());
+        Position maxPos = new Position(p2.getBlockX(),p2.getBlockY(),p2.getBlockZ());
+		//Mine newMine = new Mine(p1.getBlockX(), p1.getBlockY(), p1.getBlockZ(), p2.getBlockX(), p2.getBlockY(), p2.getBlockZ(), name, world);
+        Mine newMine = new Mine(minPos,maxPos,name,world);
 		plugin.mines.add(newMine);
 		player.sendMessage(phrase("mineCreated", newMine));
 		plugin.buffSave();
