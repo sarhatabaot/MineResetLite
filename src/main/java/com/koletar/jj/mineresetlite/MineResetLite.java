@@ -6,7 +6,7 @@ import com.vk2gpz.mineresetlite.listeners.PlayerEventListener;
 import com.koletar.jj.mineresetlite.commands.MineCommands;
 import com.koletar.jj.mineresetlite.commands.PluginCommands;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.vk2gpz.vklib.mc.material.MaterialUtil;
+//import com.vk2gpz.vklib.mc.material.MaterialUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -47,7 +47,7 @@ import java.util.logging.Logger;
 import static com.koletar.jj.mineresetlite.Phrases.phrase;
 
 /**
- * @author jjkoletar
+ * @author jjkoletar, vk2gpz, sarhatabaot
  */
 public class MineResetLite extends JavaPlugin {
 	public List<Mine> mines;
@@ -201,9 +201,19 @@ public class MineResetLite extends JavaPlugin {
 		//save();
 		logger.info("MineResetLite disabled");
 	}
-	
+
+	/** TODO:
+	 *  Use strict enum names to eliminate this whole match material function,
+	 *  matchMaterial already exists in native bukkit, why override it at all?
+	 *  Force the end user to use the proper enum naming. i.e. diamond_ore or DIAMOND_ORE
+	 *  instead of diamondore.
+	 */
 	public Material matchMaterial(String name) {
-		Material ret = MaterialUtil.getMaterial(name);
+		/*TODO:
+		 Material ret = Material.getMaterial(name.toUpperCase());
+		 or Material ret = Material.matchMaterial(name);
+		 */
+		Material ret = Material.getMaterial(name);
 		if (ret == null) {
 			//If anyone can think of a more elegant way to serve this function, let me know. ~
 			if (name.equalsIgnoreCase("diamondore")) {
@@ -221,7 +231,7 @@ public class MineResetLite extends JavaPlugin {
 			} else if (name.equalsIgnoreCase("coalore")) {
 				ret = Material.COAL_ORE;
 			} else if (name.equalsIgnoreCase("cake") || name.equalsIgnoreCase("cakeblock")) {
-				ret = MaterialUtil.getMaterial("CAKE_BLOCK");
+				ret = Material.getMaterial("CAKE_BLOCK");
 			} else if (name.equalsIgnoreCase("emeraldore")) {
 				ret = Material.EMERALD_ORE;
 			} else if (name.equalsIgnoreCase("emeraldblock")) {

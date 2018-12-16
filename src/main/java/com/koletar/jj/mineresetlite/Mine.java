@@ -52,8 +52,7 @@ public class Mine implements ConfigurationSerializable {
 	private transient int currentBroken = 0;
 	
 	private List<PotionEffect> potions = new ArrayList<>();
-	
-	
+
 	public Mine(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, String name, World world) {
 		this.minX = minX;
 		this.minY = minY;
@@ -88,10 +87,10 @@ public class Mine implements ConfigurationSerializable {
 			throw new IllegalArgumentException("Error finding world");
 		}
 		if (world == null) {
-			Logger l = Bukkit.getLogger();
-			l.severe("[MineResetLite] Unable to find a world! Please include these logger lines along with the stack trace when reporting this bug!");
-			l.severe("[MineResetLite] Attempted to load world named: " + me.get("world"));
-			l.severe("[MineResetLite] Worlds listed: " + StringTools.buildList(Bukkit.getWorlds(), "", ", "));
+			Logger logger = Bukkit.getLogger();
+			logger.severe("[MineResetLite] Unable to find a world! Please include these logger lines along with the stack trace when reporting this bug!");
+			logger.severe("[MineResetLite] Attempted to load world named: " + me.get("world"));
+			logger.severe("[MineResetLite] Worlds listed: " + StringTools.buildList(Bukkit.getWorlds(), "", ", "));
 			throw new IllegalArgumentException("World was null!");
 		}
 		try {
@@ -149,8 +148,8 @@ public class Mine implements ConfigurationSerializable {
 		
 		if (me.containsKey("potions")) {
 			potions = new ArrayList<>();
-			Map<String, Integer> potionpairs = (Map<String, Integer>) me.get("potions");
-			for (Map.Entry<String, Integer> entry : potionpairs.entrySet()) {
+			Map<String, Integer> potionPairs = (Map<String, Integer>) me.get("potions");
+			for (Map.Entry<String, Integer> entry : potionPairs.entrySet()) {
 				String name = entry.getKey();
 				int amp = entry.getValue();
 				PotionEffect pot = new PotionEffect(
@@ -307,22 +306,25 @@ public class Mine implements ConfigurationSerializable {
 		//Get probability map
 		List<CompositionEntry> probabilityMap = mapComposition(composition);
 		//Pull players out
-		for (Player p : Bukkit.getServer().getOnlinePlayers()) {
-			Location l = p.getLocation();
-			if (isInside(p)) {
+		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+			Location playerLocation = player.getLocation();
+			if (isInside(player)) {
 				//p.teleport(new Location(world, l.getX(), maxY + 2D, l.getZ()));
 				if (tpY > -Integer.MAX_VALUE) {
-					p.teleport(getTp());
+					player.teleport(getTp());
 				} else { // empty spawn location!
 					// find the safe landing location!
-					Location tp = new Location(world, l.getX(), maxY + 1D, l.getZ());
+					Location tp = new Location(world, playerLocation.getX(), maxY + 1D, playerLocation.getZ());
 					Block block = tp.getBlock();
 					
 					// check to make sure we don't suffocate player
 					if (block.getType() != Material.AIR || block.getRelative(BlockFace.UP).getType() != Material.AIR) {
-						tp = new Location(world, l.getX(), l.getWorld().getHighestBlockYAt(l.getBlockX(), l.getBlockZ()), l.getZ());
+						tp = new Location(world, playerLocation.getX(),
+								playerLocation.getWorld().getHighestBlockYAt(playerLocation.getBlockX(),
+								playerLocation.getBlockZ()),
+								playerLocation.getZ());
 					}
-					p.teleport(tp);
+					player.teleport(tp);
 				}
 			}
 		}
@@ -473,8 +475,8 @@ public class Mine implements ConfigurationSerializable {
 		this.currentBroken = broken;
 		// send mine changed event
 		//mi.updateSigns();
-		MineUpdatedEvent mue = new MineUpdatedEvent(this);
-		Bukkit.getServer().getPluginManager().callEvent(mue);
+		MineUpdatedEvent mineUpdatedEvent = new MineUpdatedEvent(this);
+		Bukkit.getServer().getPluginManager().callEvent(mineUpdatedEvent);
 		
 		if (this.resetPercent > 0 && this.currentBroken >= (this.maxCount * (1.0 - this.resetPercent))) {
 			reset();
@@ -495,8 +497,8 @@ public class Mine implements ConfigurationSerializable {
 		return this.potions;
 	}
 	
-	public void addPotion(String potstr) {
-		String[] tokens = potstr.split(":");
+	public void addPotion(String strPotion) {
+		String[] tokens = strPotion.split(":");
 		int amp = 1;
 		try {
 			if (tokens.length > 1) {
@@ -513,11 +515,11 @@ public class Mine implements ConfigurationSerializable {
 		potions.add(pot);
 	}
 	
-	public void removePotion(String pot) {
+	public void removePotion(String potion) {
 		PotionEffect found = null;
-		for (PotionEffect pe : potions) {
-			if (pe.getType().getName().equalsIgnoreCase(pot)) {
-				found = pe;
+		for (PotionEffect potionEffect : potions) {
+			if (potionEffect.getType().getName().equalsIgnoreCase(potion)) {
+				found = potionEffect;
 				break;
 			}
 		}

@@ -1,6 +1,5 @@
 package com.koletar.jj.mineresetlite;
 
-import com.vk2gpz.vklib.mc.material.MaterialUtil;
 import org.bukkit.Material;
 
 /**
@@ -27,7 +26,7 @@ public class SerializableBlock {
         }
         
         try {
-            this.type = MaterialUtil.getMaterial(bits[0]);
+            this.type = Material.getMaterial(bits[0]);
             data = (bits.length > 1) ? Byte.valueOf(bits[1]) : (byte) 0;
             this.blockId = this.type.name();
 			
