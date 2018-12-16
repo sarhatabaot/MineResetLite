@@ -1,6 +1,6 @@
 package com.koletar.jj.mineresetlite;
 
-import com.vk2gpz.mineresetlite.event.MineUpdatedEvent;
+import com.koletar.jj.mineresetlite.events.MineUpdatedEvent;
 import com.vk2gpz.vklib.reflection.ReflectionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -12,6 +12,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -301,33 +302,39 @@ public class Mine implements ConfigurationSerializable {
 	private Location getTp() {
 		return new Location(getWorld(), tpX, tpY, tpZ, tpYaw, tpPitch);
 	}
-	
+
+	@NotNull
+	private Location getSafeLocation(Location playerLocation){
+		Location location = new Location(world, playerLocation.getX(), maxY + 1D, playerLocation.getZ());
+		Block block = location.getBlock();
+
+		// check to make sure we don't suffocate player
+		if (block.getType() != Material.AIR || block.getRelative(BlockFace.UP).getType() != Material.AIR) {
+			location = new Location(world, playerLocation.getX(),
+					playerLocation.getWorld().getHighestBlockYAt(playerLocation.getBlockX(),
+							playerLocation.getBlockZ()),
+					playerLocation.getZ());
+		}
+		return location;
+	}
+	private void teleportPlayers(){
+		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+			Location playerLocation = player.getLocation();
+			if (isInside(player)) {
+				if (tpY > -Integer.MAX_VALUE) {
+					player.teleport(getTp());
+				} else {
+					Location safeLocation = getSafeLocation(playerLocation);
+					player.teleport(safeLocation);
+				}
+			}
+		}
+	}
 	public void reset() {
 		//Get probability map
 		List<CompositionEntry> probabilityMap = mapComposition(composition);
 		//Pull players out
-		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-			Location playerLocation = player.getLocation();
-			if (isInside(player)) {
-				//p.teleport(new Location(world, l.getX(), maxY + 2D, l.getZ()));
-				if (tpY > -Integer.MAX_VALUE) {
-					player.teleport(getTp());
-				} else { // empty spawn location!
-					// find the safe landing location!
-					Location tp = new Location(world, playerLocation.getX(), maxY + 1D, playerLocation.getZ());
-					Block block = tp.getBlock();
-					
-					// check to make sure we don't suffocate player
-					if (block.getType() != Material.AIR || block.getRelative(BlockFace.UP).getType() != Material.AIR) {
-						tp = new Location(world, playerLocation.getX(),
-								playerLocation.getWorld().getHighestBlockYAt(playerLocation.getBlockX(),
-								playerLocation.getBlockZ()),
-								playerLocation.getZ());
-					}
-					player.teleport(tp);
-				}
-			}
-		}
+		teleportPlayers();
 		//Actually reset
 		Random rand = new Random();
 		for (int x = minX; x <= maxX; ++x) {
@@ -336,11 +343,11 @@ public class Mine implements ConfigurationSerializable {
 					if (!fillMode || world.getBlockAt(x, y, z).getType() == Material.AIR) {
 						if (y == maxY && surface != null) {
 							//world.getBlockAt(x, y, z).setTypeIdAndData(surface.getBlockId(), surface.getData(), false);
-							Block b = world.getBlockAt(x, y, z);
-							b.setType(surface.getBlockType());
+							Block block = world.getBlockAt(x, y, z);
+							block.setType(surface.getBlockType());
 							if (surface.getData() > 0) {
 								try {
-									ReflectionUtil.makePerform(b, "setData", new Object[]{surface.getData()});
+									ReflectionUtil.makePerform(block, "setData", new Object[]{surface.getData()});
 								} catch (Throwable ignore) {
 								
 								}
@@ -367,7 +374,7 @@ public class Mine implements ConfigurationSerializable {
 				}
 			}
 		}
-		resetMRLP();
+		resetBrokenBlocks();
 	}
 	
 	void cron() {
@@ -470,7 +477,10 @@ public class Mine implements ConfigurationSerializable {
 	public double getResetPercent() {
 		return this.resetPercent;
 	}
-	
+
+    /** TODO:
+     * sets broken blocks in precent reset
+     */
 	public void setBrokenBlocks(int broken) {
 		this.currentBroken = broken;
 		// send mine changed event
@@ -489,7 +499,7 @@ public class Mine implements ConfigurationSerializable {
 		return this.currentBroken;
 	}
 	
-	private void resetMRLP() {
+	private void resetBrokenBlocks() {
 		this.currentBroken = 0;
 	}
 	
