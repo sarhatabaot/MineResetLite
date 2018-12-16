@@ -168,7 +168,10 @@ public class MineResetLite extends JavaPlugin {
 		pm.registerEvents(new ExplodeEventListener(this), this);
 		pm.registerEvents(new PlayerEventListener(this), this);
 	}
-	
+
+	/** TODO:
+	 *  Update URL to github releases.
+	 */
 	private void checkUpdates() {
 		try {
 			URL updateFile = new URL("https://api.curseforge.com/servermods/files?projectIds=45520");
@@ -366,19 +369,25 @@ public class MineResetLite extends JavaPlugin {
 	
 	public static void broadcast(String message, Mine mine) {
 		if (Config.getBroadcastNearbyOnly()) {
-			for (Player p : mine.getWorld().getPlayers()) {
-				if (mine.isInside(p)) {
-					p.sendMessage(message);
-				}
-			}
-			Bukkit.getLogger().info(message);
+			broadcastNearby(message,mine);
 		} else if (Config.getBroadcastInWorldOnly()) {
-			for (Player p : mine.getWorld().getPlayers()) {
-				p.sendMessage(message);
-			}
-			Bukkit.getLogger().info(message);
+			broadcastInWorldOnly(message,mine);
 		} else {
 			Bukkit.getServer().broadcastMessage(message);
 		}
 	}
+	public static void broadcastNearby(String message, Mine mine){
+        for (Player p : mine.getWorld().getPlayers()) {
+            if (mine.isInside(p)) {
+                p.sendMessage(message);
+            }
+        }
+        Bukkit.getLogger().info(message);
+    }
+    public static void broadcastInWorldOnly(String message, Mine mine){
+        for (Player p : mine.getWorld().getPlayers()) {
+            p.sendMessage(message);
+        }
+        Bukkit.getLogger().info(message);
+    }
 }
