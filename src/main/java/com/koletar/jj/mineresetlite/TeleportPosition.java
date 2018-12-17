@@ -47,4 +47,12 @@ public class TeleportPosition extends Position {
     public void setYaw(int yaw) {
         this.yaw = yaw;
     }
+
+    @Override
+    public String toString() {
+        return "TeleportPosition{" +
+                "pitch=" + pitch +
+                ", yaw=" + yaw +
+                "} " + super.toString();
+    }
 }

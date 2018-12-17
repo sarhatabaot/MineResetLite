@@ -58,4 +58,12 @@ public class Position implements ConfigurationSerializable {
         this.z = z;
     }
 
+    @Override
+    public String toString() {
+        return "Position{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}';
+    }
 }
