@@ -25,30 +25,24 @@ import java.util.logging.Logger;
  * @author jjkoletar
  */
 public class Mine implements ConfigurationSerializable {
+	private String name;
+	private World world;
 	private Position minPos;
 	private Position maxPos;
-	/*private int minX;
-	private int minY;
-	private int minZ;
-	private int maxX;
-	private int maxY;
-	private int maxZ;*/
-	private World world;
+
+	private SerializableBlock surface;
 	private Map<SerializableBlock, Double> composition;
+
+	private boolean fillMode;
+
+	private Reset reset;
+
 	private int resetDelay;
 	private List<Integer> resetWarnings;
-	private String name;
-	private SerializableBlock surface;
-	private boolean fillMode;
 	private int resetClock;
 	private boolean isSilent;
+
 	private TeleportPosition teleportPosition;
-	/*
-	private int tpX = 0;
-	private int tpY = -Integer.MAX_VALUE;
-	private int tpZ = 0;
-	private int tpYaw = 0;
-	private int tpPitch = 0;*/
 	
 	// from MineResetLitePlus
 	private double resetPercent = -1.0;
@@ -68,21 +62,6 @@ public class Mine implements ConfigurationSerializable {
 		setMaxCount();
 	}
 
-	/*public Mine(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, String name, World world) {
-		this.minX = minX;
-		this.minY = minY;
-		this.minZ = minZ;
-		this.maxX = maxX;
-		this.maxY = maxY;
-		this.maxZ = maxZ;
-		this.name = name;
-		this.world = world;
-		composition = new HashMap<>();
-		resetWarnings = new LinkedList<>();
-		
-		setMaxCount();
-	}*/
-
 	/**
 	 * Deserialize
 	 */
@@ -90,24 +69,17 @@ public class Mine implements ConfigurationSerializable {
 		try {
 			this.minPos = (Position) me.get("minPos");
 			this.maxPos = (Position) me.get("maxPos");
-			/*
-			minX = (Integer) me.get("minX");
-			minY = (Integer) me.get("minY");
-			minZ = (Integer) me.get("minZ");
-			maxX = (Integer) me.get("maxX");
-			maxY = (Integer) me.get("maxY");
-			maxZ = (Integer) me.get("maxZ");*/
-			
+
 			setMaxCount();
 		} catch (Throwable t) {
 			throw new IllegalArgumentException("Error deserializing coordinate pairs");
 		}
 		try {
-			world = Bukkit.getServer().getWorld((String) me.get("world"));
+			this.world = Bukkit.getServer().getWorld((String) me.get("world"));
 		} catch (Throwable t) {
 			throw new IllegalArgumentException("Error finding world");
 		}
-		if (world == null) {
+		if (this.world == null) {
 			Logger logger = Bukkit.getLogger();
 			logger.severe("[MineResetLite] Unable to find a world! Please include these logger lines along with the stack trace when reporting this bug!");
 			logger.severe("[MineResetLite] Attempted to load world named: " + me.get("world"));
@@ -116,9 +88,9 @@ public class Mine implements ConfigurationSerializable {
 		}
 		try {
 			Map<String, Double> sComposition = (Map<String, Double>) me.get("composition");
-			composition = new HashMap<>();
+			this.composition = new HashMap<>();
 			for (Map.Entry<String, Double> entry : sComposition.entrySet()) {
-				composition.put(new SerializableBlock(entry.getKey()), entry.getValue());
+				this.composition.put(new SerializableBlock(entry.getKey()), entry.getValue());
 			}
 		} catch (Throwable t) {
 			throw new IllegalArgumentException("Error deserializing composition");
@@ -155,22 +127,11 @@ public class Mine implements ConfigurationSerializable {
 		if (me.containsKey("tpPos")) {
 			teleportPosition = (TeleportPosition) me.get("tpPos");
 		}
-		/*
-		if (me.containsKey("tpY")) { // Should contain all three if it contains this one
-			tpX = (int) me.get("tpX");
-			tpY = (int) me.get("tpY");
-			tpZ = (int) me.get("tpZ");
-		}
-		
-		if (me.containsKey("tpYaw")) {
-			tpYaw = (int) me.get("tpYaw");
-			tpPitch = (int) me.get("tpPitch");
-		}*/
-		
+
 		if (me.containsKey("resetPercent")) {
 			resetPercent = (double) me.get("resetPercent");
 		}
-		
+
 		if (me.containsKey("potions")) {
 			potions = new ArrayList<>();
 			Map<String, Integer> potionPairs = (Map<String, Integer>) me.get("potions");
@@ -185,43 +146,67 @@ public class Mine implements ConfigurationSerializable {
 			}
 		}
 	}
+
+	public Position getMinPos(){
+		return this.minPos;
+	}
+	public Position getMaxPos(){
+		return this.maxPos;
+	}
+	public void setMinPos(Position minPos){
+		this.minPos = minPos;
+	}
+	public void setMaxPos(Position maxPos){
+		this.maxPos = maxPos;
+	}
+	public TeleportPosition getTeleportPosition(){
+		return this.teleportPosition;
+	}
+	public void setTeleportPosition(TeleportPosition teleportPosition){
+		this.teleportPosition = teleportPosition;
+	}
+
 	
 	public Map<String, Object> serialize() {
 		Map<String, Object> me = new HashMap<>();
-		me.put("maxPos",maxPos.serialize());
-		me.put("minPos",minPos.serialize());
 
-		me.put("world", world.getName());
-		//Make string form of composition
-		Map<String, Double> sComposition = new HashMap<>();
-		for (Map.Entry<SerializableBlock, Double> entry : composition.entrySet()) {
-			sComposition.put(entry.getKey().toString(), entry.getValue());
-		}
-		me.put("composition", sComposition);
-		me.put("name", name);
-		me.put("resetDelay", resetDelay);
-		List<String> warnings = new LinkedList<>();
-		for (Integer warning : resetWarnings) {
-			warnings.add(warning.toString());
-		}
-		me.put("resetWarnings", warnings);
-		if (surface != null) {
-			me.put("surface", surface.toString());
+		me.put("name", this.name);
+		me.put("maxPos",this.maxPos.serialize());
+		me.put("minPos",this.minPos.serialize());
+		me.put("world", this.world.getName());
+
+		if (this.surface != null) {
+			me.put("surface", this.surface.toString());
 		} else {
 			me.put("surface", "");
 		}
-		me.put("fillMode", fillMode);
-		me.put("resetClock", resetClock);
-		me.put("isSilent", isSilent);
-		me.put("tpPos",teleportPosition.serialize());
-		
-		me.put("resetPercent", resetPercent);
-		
-		Map<String, Integer> potionpairs = new HashMap<>();
-		for (PotionEffect pe : this.potions) {
-			potionpairs.put(pe.getType().getName(), pe.getAmplifier());
+		//Make string form of composition
+		Map<String, Double> sComposition = new HashMap<>();
+		for (Map.Entry<SerializableBlock, Double> entry : this.composition.entrySet()) {
+			sComposition.put(entry.getKey().toString(), entry.getValue());
 		}
-		me.put("potions", potionpairs);
+		me.put("composition", sComposition);
+
+		me.put("fillMode", this.fillMode);
+
+		me.put("resetDelay", this.resetDelay);
+		me.put("resetClock", this.resetClock);
+		List<String> warnings = new LinkedList<>();
+		for (Integer warning : this.resetWarnings) {
+			warnings.add(warning.toString());
+		}
+		me.put("resetWarnings", warnings);
+		me.put("isSilent", this.isSilent);
+
+		me.put("resetPercent", this.resetPercent);
+
+		me.put("tpPos",this.teleportPosition.serialize());
+
+		Map<String, Integer> potionPairs = new HashMap<>();
+		for (PotionEffect pe : this.potions) {
+			potionPairs.put(pe.getType().getName(), pe.getAmplifier());
+		}
+		me.put("potions", potionPairs);
 		
 		return me;
 	}
@@ -235,8 +220,8 @@ public class Mine implements ConfigurationSerializable {
 	}
 	
 	public void setResetDelay(int minutes) {
-		resetDelay = minutes;
-		resetClock = minutes;
+		this.resetDelay = minutes;
+		this.resetClock = minutes;
 	}
 	
 	public void setResetWarnings(List<Integer> warnings) {
@@ -314,12 +299,6 @@ public class Mine implements ConfigurationSerializable {
 				l.getBlockZ(),
 				(int)l.getPitch(),
 				(int)l.getYaw());
-		/*
-		tpX = l.getBlockX();
-		tpY = l.getBlockY();
-		tpZ = l.getBlockZ();
-		tpYaw = (int) l.getYaw();
-		tpPitch = (int) l.getPitch();*/
 	}
 	
 	private Location getTp() {
@@ -508,9 +487,6 @@ public class Mine implements ConfigurationSerializable {
 		return this.resetPercent;
 	}
 
-    /** TODO:
-     * sets broken blocks in precent reset
-     */
 	public void setBrokenBlocks(int broken) {
 		this.currentBroken = broken;
 		// send mine changed event
