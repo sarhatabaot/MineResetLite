@@ -1,6 +1,8 @@
 package com.koletar.jj.mineresetlite;
 
 import com.koletar.jj.mineresetlite.events.MineUpdatedEvent;
+import com.koletar.jj.mineresetlite.util.Phrases;
+import com.koletar.jj.mineresetlite.util.StringTools;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -106,10 +108,8 @@ public class Mine implements ConfigurationSerializable {
 				throw new IllegalArgumentException("Non-numeric reset warnings supplied");
 			}
 		}
-		if (me.containsKey("surface")) {
-			if (!me.get("surface").equals("")) {
-				surface = new SerializableBlock((String) me.get("surface"));
-			}
+		if (me.containsKey("surface") && !me.get("surface").equals("")) {
+			surface = new SerializableBlock((String) me.get("surface"));
 		}
 		if (me.containsKey("fillMode")) {
 			fillMode = (Boolean) me.get("fillMode");
@@ -384,7 +384,7 @@ public class Mine implements ConfigurationSerializable {
 		resetBrokenBlocks();
 	}
 	
-	void cron() {
+	public void cron() {
 		if (resetDelay == 0) {
 			return;
 		}

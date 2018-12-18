@@ -10,7 +10,7 @@ public class Position implements ConfigurationSerializable {
 
     public Position(){
         this.x = 0;
-        this.y = -Integer.MAX_VALUE;;
+        this.y = -Integer.MAX_VALUE;
         this.z = 0;
     }
     public Position(int x, int y, int z) {

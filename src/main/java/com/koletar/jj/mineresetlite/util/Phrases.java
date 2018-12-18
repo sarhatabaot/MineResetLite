@@ -1,6 +1,8 @@
-package com.koletar.jj.mineresetlite;
+package com.koletar.jj.mineresetlite.util;
 
 //import com.vk2gpz.vklib.mc.material.MaterialUtil;
+import com.koletar.jj.mineresetlite.Mine;
+import com.koletar.jj.mineresetlite.SerializableBlock;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.BlockCommandSender;
@@ -22,18 +24,18 @@ public class Phrases {
 
     private Phrases() {}
 
-    static Phrases getInstance() {
+    public static Phrases getInstance() {
         if (instance == null) {
             instance = new Phrases();
         }
         return instance;
     }
 
-    void initialize(Locale l) {
+    public void initialize(Locale l) {
         phrases = ResourceBundle.getBundle("phrases", l);
     }
 
-    void overrides(Properties overrides) {
+    public void overrides(Properties overrides) {
         this.overrides = overrides;
     }
 
@@ -61,7 +63,7 @@ public class Phrases {
         return format;
     }
 
-    static String findName(Object o) {
+    public static String findName(Object o) {
         if (o instanceof Mine) {
             return ((Mine) o).getName();
         } else if (o instanceof Player) {

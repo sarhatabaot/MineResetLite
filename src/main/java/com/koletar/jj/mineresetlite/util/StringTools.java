@@ -1,4 +1,6 @@
-package com.koletar.jj.mineresetlite;
+package com.koletar.jj.mineresetlite.util;
+
+import com.koletar.jj.mineresetlite.util.Phrases;
 
 import java.util.List;
 

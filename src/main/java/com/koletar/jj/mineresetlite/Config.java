@@ -1,6 +1,7 @@
 package com.koletar.jj.mineresetlite;
 
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.Contract;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,22 +12,23 @@ import java.io.IOException;
  * @author jjkoletar
  */
 public class Config {
-    private Config() {}
     private static boolean broadcastInWorldOnly = false;
     private static boolean broadcastNearbyOnly = false;
     private static boolean checkForUpdates = true;
     private static boolean debug = false;
     private static String locale = "en";
 
+    private Config() {}
+
     public static boolean isDebug() {
         return debug;
     }
 
-    static boolean getBroadcastInWorldOnly() {
+    public static boolean getBroadcastInWorldOnly() {
         return broadcastInWorldOnly;
     }
 
-    static boolean getBroadcastNearbyOnly() {
+    public static boolean getBroadcastNearbyOnly() {
         return broadcastNearbyOnly;
     }
 
@@ -73,7 +75,7 @@ public class Config {
         out.newLine();
     }
 
-    static String getLocale() {
+    public static String getLocale() {
         return locale;
     }
 

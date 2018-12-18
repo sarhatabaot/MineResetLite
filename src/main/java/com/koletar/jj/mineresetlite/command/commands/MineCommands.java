@@ -3,7 +3,7 @@ package com.koletar.jj.mineresetlite.command.commands;
 import com.koletar.jj.mineresetlite.*;
 import com.koletar.jj.mineresetlite.command.Command;
 import com.koletar.jj.mineresetlite.debugger.MineDebugger;
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.koletar.jj.mineresetlite.util.StringTools;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -15,7 +15,7 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 
-import static com.koletar.jj.mineresetlite.Phrases.phrase;
+import static com.koletar.jj.mineresetlite.util.Phrases.phrase;
 
 /**
  * @author jjkoletar
@@ -88,11 +88,43 @@ public class MineCommands {
 		throw new InvalidCommandArgumentsException();
 	}
 
-    /**
-     * TODO: Reduce complexity of method
-     * @param sender
-     * @param args
-     */
+	/**
+	 * Sorts & Swaps the 2 points,
+	 * p1 is smaller, p2 is bigger
+	 * @param p1
+	 * @param p2
+	 */
+	private void sortCoordinates(Vector p1, Vector p2){
+		if (p1.getX() > p2.getX()) {
+			//Swap
+			double x = p1.getX();
+			p1.setX(p2.getX());
+			p2.setX(x);
+		}
+		if (p1.getY() > p2.getY()) {
+			double y = p1.getY();
+			p1.setY(p2.getY());
+			p2.setY(y);
+		}
+		if (p1.getZ() > p2.getZ()) {
+			double z = p1.getZ();
+			p1.setZ(p2.getZ());
+			p2.setZ(z);
+		}
+	}
+
+	/**
+	 * Checks if mine name is unique
+	 * @param name
+	 * @return true|false
+	 */
+	private boolean isUniqueName(String name){
+		Mine[] mines = plugin.matchMines(name);
+		if(mines.length>0)
+			return false;
+		return true;
+	}
+
 	@Command(aliases = {"create", "save"},
 			description = "Create a mine from either your WorldEdit selection or by manually specifying the points",
 			help = {"Provided you have a selection made via either WorldEdit or selecting the points using MRL,",
@@ -116,8 +148,7 @@ public class MineCommands {
 			p1 = point1.get(player).toVector();
 			p2 = point2.get(player).toVector();
 		}
-		WorldEditPlugin worldEditPlugin = (WorldEditPlugin) Bukkit.getPluginManager().getPlugin("WorldEdit");
-		Selection selection = worldEditPlugin.getSelection(player);
+		Selection selection = plugin.getWorldEdit().getSelection(player);
 		if (selection != null) {
 			world = selection.getWorld();
 			p1 = selection.getMinimumPoint().toVector();
@@ -130,35 +161,17 @@ public class MineCommands {
 		}
 		//Construct mine name
 		String name = StringTools.buildSpacedArgument(args);
-		//Verify uniqueness of mine name
-		Mine[] mines = plugin.matchMines(name);
-		if (mines.length > 0) {
+		if (isUniqueName(name)) {
 			player.sendMessage(phrase("nameInUse", name));
 			return;
 		}
 		//Sort coordinates
-		if (p1.getX() > p2.getX()) {
-			//Swap
-			double x = p1.getX();
-			p1.setX(p2.getX());
-			p2.setX(x);
-		}
-		if (p1.getY() > p2.getY()) {
-			double y = p1.getY();
-			p1.setY(p2.getY());
-			p2.setY(y);
-		}
-		if (p1.getZ() > p2.getZ()) {
-			double z = p1.getZ();
-			p1.setZ(p2.getZ());
-			p2.setZ(z);
-		}
+		sortCoordinates(p1,p2);
+
 		//Create!
-        /** TODO: Convert to new Position class use
-         */
         Position minPos = new Position(p1.getBlockX(),p1.getBlockY(),p1.getBlockZ());
         Position maxPos = new Position(p2.getBlockX(),p2.getBlockY(),p2.getBlockZ());
-		//Mine newMine = new Mine(p1.getBlockX(), p1.getBlockY(), p1.getBlockZ(), p2.getBlockX(), p2.getBlockY(), p2.getBlockZ(), name, world);
+
         Mine newMine = new Mine(minPos,maxPos,name,world);
 		plugin.mines.add(newMine);
 		player.sendMessage(phrase("mineCreated", newMine));

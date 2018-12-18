@@ -4,7 +4,7 @@ import com.koletar.jj.mineresetlite.command.Command;
 import com.koletar.jj.mineresetlite.MineResetLite;
 import org.bukkit.command.CommandSender;
 
-import static com.koletar.jj.mineresetlite.Phrases.phrase;
+import static com.koletar.jj.mineresetlite.util.Phrases.phrase;
 
 public class PluginCommands {
     private MineResetLite plugin;

@@ -47,7 +47,7 @@ public class SerializableBlock {
         return blockId + ":" + data;
     }
     
-    Material getBlockType() {
+    public Material getBlockType() {
     	return this.type;
 	}
 

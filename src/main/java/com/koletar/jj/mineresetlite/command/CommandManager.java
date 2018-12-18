@@ -1,7 +1,6 @@
 package com.koletar.jj.mineresetlite.command;
 
 import com.koletar.jj.mineresetlite.InvalidCommandArgumentsException;
-import com.koletar.jj.mineresetlite.command.Command;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -13,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static com.koletar.jj.mineresetlite.Phrases.phrase;
+import static com.koletar.jj.mineresetlite.util.Phrases.phrase;
 
 /**
  * Specific command manager. Far less generalized than sk89q's.
@@ -48,44 +47,46 @@ public class CommandManager {
             description = "Provide information about MineResetLite commands",
             min = 0, max = -1)
     public void help(CommandSender sender, String[] args) {
-        if (args.length >= 1) {
-            if (commands.containsKey(args[0].toLowerCase())) {
-                Command command = commands.get(args[0].toLowerCase()).getAnnotation(Command.class);
-                sender.sendMessage(phrase("helpUsage", command.aliases()[0], command.usage()));
-                for (String help : command.help()) {
-                    sender.sendMessage(ChatColor.GRAY + help);
-                }
-                return;
+        if (args.length >= 1 && commands.containsKey(args[0].toLowerCase())) {
+            Command command = commands.get(args[0].toLowerCase()).getAnnotation(Command.class);
+            sender.sendMessage(phrase("helpUsage", command.aliases()[0], command.usage()));
+            for (String help : command.help()) {
+                sender.sendMessage(ChatColor.GRAY + help);
             }
+            return;
         }
+        showHelpByPermission(sender);
+    }
+    private void showHelpByPermission(CommandSender sender){
         List<Method> seenMethods = new LinkedList<>();
         for (Map.Entry<String, Method> entry : commands.entrySet()) {
             if (!seenMethods.contains(entry.getValue())) {
                 seenMethods.add(entry.getValue());
                 Command command = entry.getValue().getAnnotation(Command.class);
                 //Only show help if the sender can use the command anyway
-                if ((command.onlyPlayers() && !(sender instanceof Player))) {
-                    continue;
-                }
-                boolean may = false;
-                for (String perm : command.permissions()) {
-                    if (sender.hasPermission(perm)) {
-                        may = true;
-                    }
-                }
-                if (!may) {
+                if ((command.onlyPlayers() && !(sender instanceof Player)) || !checkPermission(command,sender)) {
                     continue;
                 }
                 sender.sendMessage(phrase("helpUsage", command.aliases()[0], command.usage()));
                 sender.sendMessage(phrase("helpDesc", command.description()));
             }
         }
-
     }
-
+    private boolean checkPermission(Command command, CommandSender sender) {
+        boolean hasPermission = false;
+        if(command.permissions().length == 0) {
+            hasPermission = true;
+        }
+        for (String permission: command.permissions()){
+            if(sender.hasPermission(permission)){
+                hasPermission = true;
+            }
+        }
+        return hasPermission;
+    }
     public void callCommand(String cmdName, CommandSender sender, String[] args) {
-        //Do we have the command?
         Method method = commands.get(cmdName.toLowerCase());
+
         if (method == null) {
             sender.sendMessage(phrase("unknownCommand"));
             return;
@@ -107,16 +108,7 @@ public class CommandManager {
         }
 
         //Permission checks
-        boolean may = false;
-        if (command.permissions().length == 0) {
-            may = true;
-        }
-        for (String perm : command.permissions()) {
-            if (sender.hasPermission(perm)) {
-                may = true;
-            }
-        }
-        if (!may) {
+        if (!checkPermission(command,sender)){
             sender.sendMessage(phrase("noPermission"));
             return;
         }

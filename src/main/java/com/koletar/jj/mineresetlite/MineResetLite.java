@@ -6,6 +6,7 @@ import com.koletar.jj.mineresetlite.command.CommandManager;
 import com.koletar.jj.mineresetlite.command.commands.MineCommands;
 import com.koletar.jj.mineresetlite.command.commands.PluginCommands;
 import com.koletar.jj.mineresetlite.tasks.MrlUpdate;
+import com.koletar.jj.mineresetlite.util.Phrases;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -33,7 +34,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
-import static com.koletar.jj.mineresetlite.Phrases.phrase;
+import static com.koletar.jj.mineresetlite.util.Phrases.phrase;
 
 /**
  * @author jjkoletar, vk2gpz, sarhatabaot
@@ -180,16 +181,17 @@ public class MineResetLite extends JavaPlugin {
 	}
 	
 	public Mine[] matchMines(String in) {
+		String strMine = in;
 		List<Mine> matches = new LinkedList<>();
-		boolean wildcard = in.contains("*");
-		in = in.replace("*", "").toLowerCase();
+		boolean wildcard = strMine.contains("*");
+		strMine = strMine.replace("*", "").toLowerCase();
 		for (Mine mine : mines) {
 			if (wildcard) {
-				if (mine.getName().toLowerCase().contains(in)) {
+				if (mine.getName().toLowerCase().contains(strMine)) {
 					matches.add(mine);
 				}
 			} else {
-				if (mine.getName().equalsIgnoreCase(in)) {
+				if (mine.getName().equalsIgnoreCase(strMine)) {
 					matches.add(mine);
 				}
 			}

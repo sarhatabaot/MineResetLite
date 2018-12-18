@@ -14,6 +14,7 @@ public class MineDebugger {
                 ",minPos: "+mine.getMinPos().toString()+
                 ",maxPos: "+mine.getMaxPos().toString()+
                 ",composition: "+toStringComposition(mine.getComposition());
+
         if(mine.getTeleportPosition()!=null){
             strMine += ",tpPos: "+mine.getTeleportPosition().toString();
         }
