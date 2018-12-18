@@ -15,7 +15,12 @@ public class Config {
     private static boolean broadcastInWorldOnly = false;
     private static boolean broadcastNearbyOnly = false;
     private static boolean checkForUpdates = true;
+    private static boolean debug = false;
     private static String locale = "en";
+
+    public static boolean isDebug() {
+        return debug;
+    }
 
     static boolean getBroadcastInWorldOnly() {
         return broadcastInWorldOnly;
@@ -89,6 +94,17 @@ public class Config {
         out.newLine();
     }
 
+    private static void writeDebug(BufferedWriter out) throws IOException {
+        out.write("# For debugging only");
+        out.newLine();
+        out.write("debug: false");
+        out.newLine();
+    }
+
+    private static void setDebug(boolean debug){
+        Config.debug = debug;
+    }
+
     static void initConfig(File dataFolder) throws IOException {
         if (!dataFolder.exists()) {
             dataFolder.mkdir();
@@ -103,6 +119,7 @@ public class Config {
             Config.writeBroadcastNearbyOnly(out);
             Config.writeCheckForUpdates(out);
             Config.writeLocale(out);
+            Config.writeDebug(out);
             out.close();
         }
         YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
@@ -126,6 +143,11 @@ public class Config {
             Config.setLocale(config.getString("locale"));
         } else {
             Config.writeLocale(out);
+        }
+        if (config.contains("debug")){
+            Config.setDebug(config.getBoolean("debug"));
+        } else {
+            Config.writeDebug(out);
         }
         out.close();
     }
