@@ -1,12 +1,12 @@
 package com.koletar.jj.mineresetlite;
 
-import com.vk2gpz.mineresetlite.listeners.BlockEventListener;
-import com.vk2gpz.mineresetlite.listeners.ExplodeEventListener;
-import com.vk2gpz.mineresetlite.listeners.PlayerEventListener;
-import com.koletar.jj.mineresetlite.commands.MineCommands;
-import com.koletar.jj.mineresetlite.commands.PluginCommands;
+//import com.vk2gpz.mineresetlite.listeners.BlockEventListener;
+//import com.vk2gpz.mineresetlite.listeners.PlayerEventListener;
+import com.koletar.jj.mineresetlite.command.CommandManager;
+import com.koletar.jj.mineresetlite.command.commands.MineCommands;
+import com.koletar.jj.mineresetlite.command.commands.PluginCommands;
+import com.koletar.jj.mineresetlite.tasks.MrlUpdate;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-//import com.vk2gpz.vklib.mc.material.MaterialUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -23,25 +23,14 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
-import com.koletar.jj.mineresetlite.org.mcstats.Metrics;
 import org.bukkit.scheduler.BukkitTask;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Logger;
 
 import static com.koletar.jj.mineresetlite.Phrases.phrase;
@@ -54,15 +43,15 @@ public class MineResetLite extends JavaPlugin {
 	private Logger logger;
 	private CommandManager commandManager;
 	private WorldEditPlugin worldEdit = null;
-	private Metrics metrics = null;
 	private int saveTaskId = -1;
 	private int resetTaskId = -1;
 	private BukkitTask updateTask = null;
 	private boolean needsUpdate;
-	private boolean isUpdateCritical;
 	
 	static {
 		ConfigurationSerialization.registerClass(Mine.class);
+		//ConfigurationSerialization.registerClass(Position.class);
+		//ConfigurationSerialization.registerClass(TeleportPosition.class);
 	}
 	
 	private static class IsMineFile implements FilenameFilter {
@@ -77,54 +66,56 @@ public class MineResetLite extends JavaPlugin {
 			if (event.getPlayer().hasPermission("mineresetlite.updates") && needsUpdate) {
 				event.getPlayer().sendMessage(phrase("updateWarning1"));
 				event.getPlayer().sendMessage(phrase("updateWarning2"));
-				if (isUpdateCritical) {
-					event.getPlayer().sendMessage(phrase("criticalUpdateWarningDecoration"));
-					event.getPlayer().sendMessage(phrase("criticalUpdateWarning"));
-					event.getPlayer().sendMessage(phrase("criticalUpdateWarningDecoration"));
-				}
 			}
 		}
 	}
 	
 	public void onEnable() {
-		mines = new ArrayList<>();
 		logger = getLogger();
 		if (!setupConfig()) {
-			logger.severe("Since I couldn't setup config files properly, I guess this is goodbye. ");
+			logger.severe("Since I couldn't setup config files properly, I guess this is goodbye.");
 			logger.severe("Plugin Loading Aborted!");
 			return;
 		}
 		commandManager = new CommandManager();
-		commandManager.register(MineCommands.class, new MineCommands(this));
 		commandManager.register(CommandManager.class, commandManager);
+		commandManager.register(MineCommands.class, new MineCommands(this));
 		commandManager.register(PluginCommands.class, new PluginCommands(this));
-		Locale locale = new Locale(Config.getLocale());
-		Phrases.getInstance().initialize(locale);
-		File overrides = new File(getDataFolder(), "phrases.properties");
-		if (overrides.exists()) {
-			Properties overridesProps = new Properties();
-			try {
-				overridesProps.load(new FileInputStream(overrides));
-			} catch (IOException e) {
-				e.printStackTrace();
+
+		initPhrases();
+		if(Config.isDebug()) {logger.info("Init phrases done.");}
+		initPlugins();
+		if(Config.isDebug()) {logger.info("Init plugins done.");}
+		initMines();
+		if(Config.isDebug()) {logger.info("Init mines done.");}
+		initTasks();
+		if(Config.isDebug()) {logger.info("Init tasks done.");}
+		registerListeners();
+		if(Config.isDebug()) {logger.info("registered listeners");}
+
+		logger.info("MineResetLite version " + getDescription().getVersion() + " enabled!");
+	}
+	private void initTasks(){
+		if(Config.getCheckForUpdates()){
+			updateTask = Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(
+					this, new MrlUpdate(this),20 * 15);
+			logger.info("Check for update done.");
+		}
+		// MineReset Task
+		// reset task - every minute
+		resetTaskId = getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
+			for (Mine mine : mines) {
+				mine.cron();
 			}
-			Phrases.getInstance().overrides(overridesProps);
-		}
-		//Look for worldedit
+		}, 60 * 20L, 60 * 20L);
+	}
+	private void initPlugins(){
 		if (getServer().getPluginManager().isPluginEnabled("WorldEdit")) {
-			worldEdit = (WorldEditPlugin) getServer().getPluginManager().getPlugin("WorldEdit");
+			this.worldEdit = (WorldEditPlugin) getServer().getPluginManager().getPlugin("WorldEdit");
 		}
-		//Metrics
-        /*
-        try {
-            metrics = new Metrics(this);
-            metrics.start();
-        } catch (IOException e) {
-            logger.warning("MineResetLite couldn't initialize metrics!");
-            e.printStackTrace();
-        }
-        */
-		//Load mines
+	}
+	private void initMines() {
+		mines = new ArrayList<>();
 		File[] mineFiles = new File(getDataFolder(), "mines").listFiles(new IsMineFile());
 		assert mineFiles != null;
 		for (File file : mineFiles) {
@@ -142,56 +133,32 @@ public class MineResetLite extends JavaPlugin {
 				logger.severe("Unable to load mine!");
 			}
 		}
-		resetTaskId = getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
-			for (Mine mine : mines) {
-				mine.cron();
-			}
-		}, 60 * 20L, 60 * 20L);
-		//Check for updates
-        /*
-        if (!getDescription().getVersion().contains("dev")) {
-            updateTask = getServer().getScheduler().runTaskLaterAsynchronously(this, new Runnable() {
-                public void run() {
-                    checkUpdates();
-                }
-            }, 20 * 15);
-        }
-        */
-		getServer().getPluginManager().registerEvents(new UpdateWarner(), this);
-		registerListener();
-		logger.info("MineResetLite version " + getDescription().getVersion() + " enabled!");
-	}
-	
-	private void registerListener() {
-		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvents(new BlockEventListener(this), this);
-		pm.registerEvents(new ExplodeEventListener(this), this);
-		pm.registerEvents(new PlayerEventListener(this), this);
 	}
 
-	/** TODO:
-	 *  Update URL to github releases.
-	 */
-	private void checkUpdates() {
-		try {
-			URL updateFile = new URL("https://api.curseforge.com/servermods/files?projectIds=45520");
-			URLConnection conn = updateFile.openConnection();
-			conn.addRequestProperty("User-Agent", "MineResetLite/v" + getDescription().getVersion() + " by jjkoletar");
-			String rv = new BufferedReader(new InputStreamReader(conn.getInputStream())).readLine();
-			JSONArray resp = (JSONArray) JSONValue.parse(rv);
-			if (resp.size() == 0) return;
-			String name = ((JSONObject) resp.get(resp.size() - 1)).get("name").toString();
-			String[] bits = name.split(" ");
-			String remoteVer = bits[bits.length - 1];
-			int remoteVal = Integer.valueOf(remoteVer.replace(".", ""));
-			int localVer = Integer.valueOf(getDescription().getVersion().replace(".", ""));
-			if (remoteVal > localVer) {
-				needsUpdate = true;
-				
+	private void initPhrases(){
+		Locale locale = new Locale(Config.getLocale());
+		Phrases.getInstance().initialize(locale);
+		File overrides = new File(getDataFolder(), "phrases.properties");
+		if (overrides.exists()) {
+			Properties overridesProps = new Properties();
+			try {
+				overridesProps.load(new FileInputStream(overrides));
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-		} catch (Throwable t) {
-			t.printStackTrace();
+			Phrases.getInstance().overrides(overridesProps);
 		}
+	}
+	
+	private void registerListeners() {
+		PluginManager pm = getServer().getPluginManager();
+		pm.registerEvents(new UpdateWarner(),this);
+		//pm.registerEvents(new BlockEventListener(this), this);
+		//pm.registerEvents(new PlayerEventListener(this), this);
+	}
+
+	public void setNeedsUpdate(boolean needsUpdate) {
+		this.needsUpdate = needsUpdate;
 	}
 	
 	public void onDisable() {
@@ -205,52 +172,10 @@ public class MineResetLite extends JavaPlugin {
 		logger.info("MineResetLite disabled");
 	}
 
-	/** TODO:
-	 *  Use strict enum names to eliminate this whole match material function,
-	 *  matchMaterial already exists in native bukkit, why override it at all?
-	 *  Force the end user to use the proper enum naming. i.e. diamond_ore or DIAMOND_ORE
-	 *  instead of diamondore.
-	 */
 	public Material matchMaterial(String name) {
-		/*TODO:
-		 Material ret = Material.getMaterial(name.toUpperCase());
-		 or Material ret = Material.matchMaterial(name);
-		 */
-		Material ret = Material.getMaterial(name);
-		if (ret == null) {
-			//If anyone can think of a more elegant way to serve this function, let me know. ~
-			if (name.equalsIgnoreCase("diamondore")) {
-				ret = Material.DIAMOND_ORE;
-			} else if (name.equalsIgnoreCase("diamondblock")) {
-				ret = Material.DIAMOND_BLOCK;
-			} else if (name.equalsIgnoreCase("ironore")) {
-				ret = Material.IRON_ORE;
-			} else if (name.equalsIgnoreCase("ironblock")) {
-				ret = Material.IRON_BLOCK;
-			} else if (name.equalsIgnoreCase("goldore")) {
-				ret = Material.GOLD_ORE;
-			} else if (name.equalsIgnoreCase("goldblock")) {
-				ret = Material.GOLD_BLOCK;
-			} else if (name.equalsIgnoreCase("coalore")) {
-				ret = Material.COAL_ORE;
-			} else if (name.equalsIgnoreCase("cake") || name.equalsIgnoreCase("cakeblock")) {
-				ret = Material.getMaterial("CAKE_BLOCK");
-			} else if (name.equalsIgnoreCase("emeraldore")) {
-				ret = Material.EMERALD_ORE;
-			} else if (name.equalsIgnoreCase("emeraldblock")) {
-				ret = Material.EMERALD_BLOCK;
-			} else if (name.equalsIgnoreCase("lapisore")) {
-				ret = Material.LAPIS_ORE;
-			} else if (name.equalsIgnoreCase("lapisblock")) {
-				ret = Material.LAPIS_BLOCK;
-			} else if (name.equalsIgnoreCase("snowblock") || name.equalsIgnoreCase("snow")) { //I've never seen a mine with snowFALL in it.
-				ret = Material.SNOW_BLOCK;                                                   //Maybe I'll be proven wrong, but it helps 99% of admins.
-			} else if (name.equalsIgnoreCase("redstoneore")) {
-				ret = Material.REDSTONE_ORE;
-			} else {
-				ret = Material.matchMaterial(name);
-			}
-		}
+		Material ret = Material.getMaterial(name.toUpperCase());
+		if(ret==null)
+			ret = Material.matchMaterial(name);
 		return ret;
 	}
 	
@@ -350,7 +275,10 @@ public class MineResetLite extends JavaPlugin {
 		}
 		return true;
 	}
-	
+
+	/** TODO: Move to MineCommands.class
+	 *
+	 **/
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (command.getName().equalsIgnoreCase("mineresetlite")) {
 			if (args.length == 0) {
@@ -376,7 +304,7 @@ public class MineResetLite extends JavaPlugin {
 			Bukkit.getServer().broadcastMessage(message);
 		}
 	}
-	public static void broadcastNearby(String message, Mine mine){
+	private static void broadcastNearby(String message, @NotNull Mine mine){
         for (Player p : mine.getWorld().getPlayers()) {
             if (mine.isInside(p)) {
                 p.sendMessage(message);
@@ -384,10 +312,11 @@ public class MineResetLite extends JavaPlugin {
         }
         Bukkit.getLogger().info(message);
     }
-    public static void broadcastInWorldOnly(String message, Mine mine){
+    private static void broadcastInWorldOnly(String message, @NotNull Mine mine){
         for (Player p : mine.getWorld().getPlayers()) {
             p.sendMessage(message);
         }
         Bukkit.getLogger().info(message);
     }
+
 }
