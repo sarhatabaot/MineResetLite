@@ -1,14 +1,11 @@
-package com.koletar.jj.mineresetlite.commands;
+package com.koletar.jj.mineresetlite.command.commands;
 
-import com.koletar.jj.mineresetlite.Command;
+import com.koletar.jj.mineresetlite.command.Command;
 import com.koletar.jj.mineresetlite.MineResetLite;
 import org.bukkit.command.CommandSender;
 
 import static com.koletar.jj.mineresetlite.Phrases.phrase;
 
-/**
- * @author jjkoletar
- */
 public class PluginCommands {
     private MineResetLite plugin;
 

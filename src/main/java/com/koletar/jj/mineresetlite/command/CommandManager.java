@@ -1,5 +1,7 @@
-package com.koletar.jj.mineresetlite;
+package com.koletar.jj.mineresetlite.command;
 
+import com.koletar.jj.mineresetlite.InvalidCommandArgumentsException;
+import com.koletar.jj.mineresetlite.command.Command;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -14,11 +16,9 @@ import java.util.Map;
 import static com.koletar.jj.mineresetlite.Phrases.phrase;
 
 /**
- * Specific command manager. Far less genericizied than sk89q's.
- * </p>
+ * Specific command manager. Far less generalized than sk89q's.
  * MRL's command system is very much based on sk89q's command system for WorldEdit.
  *
- * @author jjkoletar
  */
 public class CommandManager {
     private Map<String, Method> commands;
@@ -29,7 +29,7 @@ public class CommandManager {
         instances = new HashMap<>();
     }
 
-    void register(Class<?> cls, Object obj) {
+    public void register(Class<?> cls, Object obj) {
         for (Method method : cls.getMethods()) {
             if (!method.isAnnotationPresent(Command.class)) {
                 continue;
@@ -49,7 +49,6 @@ public class CommandManager {
             min = 0, max = -1)
     public void help(CommandSender sender, String[] args) {
         if (args.length >= 1) {
-            //Subcommand help?
             if (commands.containsKey(args[0].toLowerCase())) {
                 Command command = commands.get(args[0].toLowerCase()).getAnnotation(Command.class);
                 sender.sendMessage(phrase("helpUsage", command.aliases()[0], command.usage()));
@@ -84,7 +83,7 @@ public class CommandManager {
 
     }
 
-    void callCommand(String cmdName, CommandSender sender, String[] args) {
+    public void callCommand(String cmdName, CommandSender sender, String[] args) {
         //Do we have the command?
         Method method = commands.get(cmdName.toLowerCase());
         if (method == null) {

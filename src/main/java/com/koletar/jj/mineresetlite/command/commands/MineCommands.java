@@ -1,6 +1,8 @@
-package com.koletar.jj.mineresetlite.commands;
+package com.koletar.jj.mineresetlite.command.commands;
 
 import com.koletar.jj.mineresetlite.*;
+import com.koletar.jj.mineresetlite.command.Command;
+import com.koletar.jj.mineresetlite.debugger.MineDebugger;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import org.bukkit.Bukkit;
@@ -85,7 +87,12 @@ public class MineCommands {
 		//Args weren't empty or -feet, bad args
 		throw new InvalidCommandArgumentsException();
 	}
-	
+
+    /**
+     * TODO: Reduce complexity of method
+     * @param sender
+     * @param args
+     */
 	@Command(aliases = {"create", "save"},
 			description = "Create a mine from either your WorldEdit selection or by manually specifying the points",
 			help = {"Provided you have a selection made via either WorldEdit or selecting the points using MRL,",
@@ -155,6 +162,10 @@ public class MineCommands {
         Mine newMine = new Mine(minPos,maxPos,name,world);
 		plugin.mines.add(newMine);
 		player.sendMessage(phrase("mineCreated", newMine));
+
+		if(Config.isDebug())
+		    Bukkit.broadcastMessage(MineDebugger.toString(newMine));
+
 		plugin.buffSave();
 	}
 	
@@ -210,7 +221,10 @@ public class MineCommands {
 		}
 		return false;
 	}
-	
+
+    /** TODO: Reduce complexity of method
+     *
+     */
 	@Command(aliases = {"set", "add", "+"},
 			description = "Set the percentage of a block in the mine",
 			help = {"This command will always overwrite the current percentage for the specified block,",
@@ -348,7 +362,9 @@ public class MineCommands {
 			mines[0].reset();
 		}
 	}
-	
+
+    /** TODO: Reduce complexity
+     */
 	@Command(aliases = {"flag", "f"},
 			description = "Set various properties of a mine, including automatic resets",
 			help = {"Available flags:",
