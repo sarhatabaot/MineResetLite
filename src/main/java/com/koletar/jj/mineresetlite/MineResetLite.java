@@ -306,8 +306,8 @@ public class MineResetLite extends JavaPlugin {
 	 * Broadcasts a reset message according to the Config
 	 * if nothing is set, broadcasts to everyone.
 	 * <p>
-	 * broadcastNearby() - broadcasts to player near the mine.
-	 * broadcastInWorldOnly - broadcasts only in the world.
+	 * <code>broadcastNearby()</code> - broadcasts to player near the mine.
+	 * <code>broadcastInWorldOnly()</code> - broadcasts only in the world.
 	 * @param message message to broadcast
 	 * @param mine mine that's reset
 	 */

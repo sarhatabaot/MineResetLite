@@ -348,6 +348,7 @@ public class Mine implements ConfigurationSerializable {
 			for (int y = minPos.getY(); y <= maxPos.getY(); ++y) {
 				for (int z = minPos.getZ(); z <= maxPos.getZ(); ++z) {
 					if (!fillMode || world.getBlockAt(x, y, z).getType() == Material.AIR) {
+						// set surface
 						if (y == maxPos.getY() && surface != null) {
 							//world.getBlockAt(x, y, z).setTypeIdAndData(surface.getBlockId(), surface.getData(), false);
 							Block block = world.getBlockAt(x, y, z);
