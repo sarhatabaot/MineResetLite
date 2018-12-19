@@ -128,9 +128,7 @@ public class MineCommands {
 	 */
 	private boolean isUniqueName(String name){
 		Mine[] mines = plugin.matchMines(name);
-		if(mines.length>0)
-			return false;
-		return true;
+		return mines.length == 0;
 	}
 
 	@Command(aliases = {"create", "save"},
