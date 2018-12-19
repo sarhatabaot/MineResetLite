@@ -96,6 +96,7 @@ public class MineResetLite extends JavaPlugin {
 
 		logger.info("MineResetLite version " + getDescription().getVersion() + " enabled!");
 	}
+
 	private void initTasks(){
 		if(Config.getCheckForUpdates()){
 			updateTask = Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(
@@ -173,13 +174,23 @@ public class MineResetLite extends JavaPlugin {
 		logger.info("MineResetLite disabled");
 	}
 
+	/**
+	 *
+	 * @param name
+	 * @return
+	 */
 	public Material matchMaterial(String name) {
 		Material ret = Material.getMaterial(name.toUpperCase());
 		if(ret==null)
 			ret = Material.matchMaterial(name);
 		return ret;
 	}
-	
+
+	/**
+	 *
+	 * @param in
+	 * @return
+	 */
 	public Mine[] matchMines(String in) {
 		String strMine = in;
 		List<Mine> matches = new LinkedList<>();
@@ -225,7 +236,10 @@ public class MineResetLite extends JavaPlugin {
 		final MineResetLite plugin = this;
 		scheduler.scheduleSyncDelayedTask(this, plugin::save, 60 * 20L);
 	}
-	
+
+	/**
+	 * Saves the mines to a file
+	 */
 	private void save() {
 		for (Mine mine : mines) {
 			File mineFile = getMineFile(mine);
@@ -239,24 +253,11 @@ public class MineResetLite extends JavaPlugin {
 			}
 		}
 	}
-	
-	private File getMineFile(Mine mine) {
-		return new File(new File(getDataFolder(), "mines"), mine.getName().replace(" ", "") + ".mine.yml");
-	}
-	
-	public void eraseMine(Mine mine) {
-		mines.remove(mine);
-		getMineFile(mine).delete();
-	}
-	
-	public boolean hasWorldEdit() {
-		return worldEdit != null;
-	}
-	
-	public WorldEditPlugin getWorldEdit() {
-		return worldEdit;
-	}
-	
+
+	/**
+	 * Sets-up the config file
+	 * @return returns if config was setup correctly
+	 */
 	private boolean setupConfig() {
 		File pluginFolder = getDataFolder();
 		if (!pluginFolder.exists() && !pluginFolder.mkdir()) {
@@ -278,9 +279,13 @@ public class MineResetLite extends JavaPlugin {
 		return true;
 	}
 
-	/** TODO: Move to MineCommands.class
-	 *
-	 **/
+	/**
+	 * Base /mrl command, runs the help command if no additional arguments are entered
+	 * @param args
+	 * @param command
+	 * @param label
+	 * @param sender type of sender, can be console or player
+	 */
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (command.getName().equalsIgnoreCase("mineresetlite")) {
 			if (args.length == 0) {
@@ -288,7 +293,7 @@ public class MineResetLite extends JavaPlugin {
 				commandManager.callCommand("help", sender, helpArgs);
 				return true;
 			}
-			//Spoof args array to account for the initial subcommand specification
+			//Spoof args array to account for the initial sub-command specification
 			String[] spoofedArgs = new String[args.length - 1];
 			System.arraycopy(args, 1, spoofedArgs, 0, args.length - 1);
 			commandManager.callCommand(args[0], sender, spoofedArgs);
@@ -296,7 +301,16 @@ public class MineResetLite extends JavaPlugin {
 		}
 		return false; //Fallthrough
 	}
-	
+
+	/**
+	 * Broadcasts a reset message according to the Config
+	 * if nothing is set, broadcasts to everyone.
+	 * <p>
+	 * broadcastNearby() - broadcasts to player near the mine.
+	 * broadcastInWorldOnly - broadcasts only in the world.
+	 * @param message message to broadcast
+	 * @param mine mine that's reset
+	 */
 	public static void broadcast(String message, Mine mine) {
 		if (Config.getBroadcastNearbyOnly()) {
 			broadcastNearby(message,mine);
@@ -306,19 +320,50 @@ public class MineResetLite extends JavaPlugin {
 			Bukkit.getServer().broadcastMessage(message);
 		}
 	}
+
+	/**
+	 * Broadcast a reset message only to players near the mine
+	 * @param message message to broadcast
+	 * @param mine mine that's reset
+	 */
 	private static void broadcastNearby(String message, @NotNull Mine mine){
-        for (Player p : mine.getWorld().getPlayers()) {
-            if (mine.isInside(p)) {
-                p.sendMessage(message);
-            }
-        }
-        Bukkit.getLogger().info(message);
-    }
-    private static void broadcastInWorldOnly(String message, @NotNull Mine mine){
-        for (Player p : mine.getWorld().getPlayers()) {
-            p.sendMessage(message);
-        }
-        Bukkit.getLogger().info(message);
-    }
+		for (Player p : mine.getWorld().getPlayers()) {
+			if (mine.isInside(p)) {
+				p.sendMessage(message);
+			}
+		}
+		Bukkit.getLogger().info(message);
+	}
+
+	/**
+	 * Broadcast a reset message only in the world
+	 * @param message message to broadcast
+	 * @param mine mine that's reset
+	 */
+	private static void broadcastInWorldOnly(String message, @NotNull Mine mine){
+		for (Player p : mine.getWorld().getPlayers()) {
+			p.sendMessage(message);
+		}
+		Bukkit.getLogger().info(message);
+	}
+
+	private File getMineFile(Mine mine) {
+		return new File(new File(getDataFolder(), "mines"), mine.getName().replace(" ", "") + ".mine.yml");
+	}
+	
+	public void eraseMine(Mine mine) {
+		mines.remove(mine);
+		getMineFile(mine).delete();
+	}
+	
+	public boolean hasWorldEdit() {
+		return worldEdit != null;
+	}
+	
+	public WorldEditPlugin getWorldEdit() {
+		return worldEdit;
+	}
+	
+
 
 }
