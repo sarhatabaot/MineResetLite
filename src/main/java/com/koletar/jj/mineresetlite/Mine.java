@@ -11,6 +11,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -25,8 +26,9 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 /**
- * @author jjkoletar
+ * @author jjkoletar, sarhatabaot
  */
+@SerializableAs("Mine")
 public class Mine implements ConfigurationSerializable {
     private String name;
     private World world;
@@ -34,8 +36,6 @@ public class Mine implements ConfigurationSerializable {
     private Position maxPos;
 
     private Material surface;
-    //private Map<SerializableBlock, Double> composition;
-
     private Map<Material, Double> composition;
 
     private boolean fillMode;
@@ -72,8 +72,8 @@ public class Mine implements ConfigurationSerializable {
      */
     public Mine(Map<String, Object> me) {
         try {
-            this.minPos = (Position) me.get("minPos");
-            this.maxPos = (Position) me.get("maxPos");
+        	this.minPos = Position.deserialize((Map<String,Object>) me.get("minPos"));
+        	this.maxPos = Position.deserialize((Map<String,Object>) me.get("maxPos"));
 
             setMaxCount();
         } catch (Throwable t) {
@@ -323,7 +323,7 @@ public class Mine implements ConfigurationSerializable {
 
     /**
      * @param playerLocation
-     * @return
+     * @return location - the safe location.
      */
     @NotNull
     private Location getSafeLocation(Location playerLocation) {
@@ -390,7 +390,7 @@ public class Mine implements ConfigurationSerializable {
                 }
             }
         }
-        resetBrokenBlocks();
+		this.currentBroken = 0;
     }
 
     public void cron() {
@@ -412,24 +412,6 @@ public class Mine implements ConfigurationSerializable {
             if (warning == resetClock) {
                 MineResetLite.broadcast(Phrases.phrase("mineWarningBroadcast", this, warning), this);
             }
-        }
-    }
-
-    public static class CompositionEntry {
-        private SerializableBlock block;
-        private double chance;
-
-        public CompositionEntry(SerializableBlock block, double chance) {
-            this.block = block;
-            this.chance = chance;
-        }
-
-        public SerializableBlock getBlock() {
-            return block;
-        }
-
-        public double getChance() {
-            return chance;
         }
     }
 
@@ -519,10 +501,6 @@ public class Mine implements ConfigurationSerializable {
 
     public int getBrokenBlocks() {
         return this.currentBroken;
-    }
-
-    private void resetBrokenBlocks() {
-        this.currentBroken = 0;
     }
 
     public List<PotionEffect> getPotions() {

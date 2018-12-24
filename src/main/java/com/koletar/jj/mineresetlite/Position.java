@@ -1,10 +1,12 @@
 package com.koletar.jj.mineresetlite;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.SerializableAs;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@SerializableAs("Position")
 public class Position implements ConfigurationSerializable {
     private int x,y,z;
 
@@ -19,6 +21,12 @@ public class Position implements ConfigurationSerializable {
         this.z = z;
     }
 
+    public static Position deserialize(Map<String,Object> map){
+        int x = (Integer) map.get("x");
+        int y = (Integer) map.get("y");
+        int z = (Integer) map.get("z");
+        return new Position(x,y,z);
+    }
 
     public Position(Map<String,Object> map){
         this.x = (Integer) map.get("x");
