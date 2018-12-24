@@ -93,7 +93,6 @@ public class Mine implements ConfigurationSerializable {
         }
         try {
             Map<String, Double> sComposition = (Map<String, Double>) me.get("composition");
-            //Map<String, Double> sComposition = (Map<String, Double>) me.get("composition");
             this.composition = new HashMap<>();
             for (Map.Entry<String, Double> entry : sComposition.entrySet()) {
                 this.composition.put(XMaterial.fromString(entry.getKey()).parseMaterial(), entry.getValue());
@@ -342,7 +341,7 @@ public class Mine implements ConfigurationSerializable {
     }
 
     /**
-     *
+     * Teleports players to a safe location
      */
     private void teleportPlayers() {
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
@@ -359,7 +358,7 @@ public class Mine implements ConfigurationSerializable {
     }
 
     /**
-     * TODO: Make a reflection util
+     * Resets the mine using the <code>composition</code>.
      */
     public void reset() {
         //Get probability map
@@ -374,38 +373,16 @@ public class Mine implements ConfigurationSerializable {
                     if (!fillMode || world.getBlockAt(x, y, z).getType() == Material.AIR) {
                         // set surface
                         if (y == maxPos.getY() && surface != null) {
-                            //world.getBlockAt(x, y, z).setTypeIdAndData(surface.getBlockId(), surface.getData(), false);
                             Block block = world.getBlockAt(x, y, z);
                             block.setType(surface);
-							/*
-							if (surface.getData() > 0) {
-								try {
-									block.setData(surface.getData());
-									//ReflectionUtil.makePerform(block, "setData", new Object[]{surface.getData()}); // actually sets the block
-								} catch (Throwable ignore) {
-								
-								}
-							}*/
                             continue;
                         }
                         // generate random block
                         double r = rand.nextDouble();
                         for (Map.Entry<Material, Double> entry : probabilityMap.entrySet()) {
                             if (r <= entry.getValue()) {
-                                //world.getBlockAt(x, y, z).setTypeIdAndData(ce.getBlock().getBlockId(), ce.getBlock().getData(), false);
                                 Block b = world.getBlockAt(x, y, z);
                                 b.setType(entry.getKey());
-                                // set block data
-                                // only run on versions prior to 1.13
-								/*
-								if (ce.getBlock().getData() > 0) {
-									try {
-										b.setData(ce.getBlock().getData());
-										//ReflectionUtil.makePerform(b, "setData", new Object[]{ce.getBlock().getData()}); //actually sets the block
-									} catch (Throwable ignore) {
-									
-									}
-								}*/
                                 break;
                             }
                         }
