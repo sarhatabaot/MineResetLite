@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -289,6 +290,10 @@ public class MineCommands {
 		//Material material = plugin.matchMaterial(bits[0]);
 		Material material = XMaterial.fromString(strBlock).parseMaterial();
 
+		if(!isMaterial(material,sender)){
+			return;
+		}
+		/*
 		if (material == null) {
 			sender.sendMessage(phrase("unknownBlock"));
 			return;
@@ -296,7 +301,7 @@ public class MineCommands {
 		if (!material.isBlock()) {
 			sender.sendMessage(phrase("notABlock"));
 			return;
-		}
+		}*/
 
 		/*
 		byte data = 0;
@@ -369,6 +374,9 @@ public class MineCommands {
 		//String[] bits = args[args.length - 1].split(":");
 		//Material material = plugin.matchMaterial(bits[0]);
 		Material material = XMaterial.fromString(args[args.length-1]).parseMaterial();
+		if(isMaterial(material,sender))
+			return;
+		/*
 		if (material == null) {
 			sender.sendMessage(phrase("unknownBlock"));
 			return;
@@ -376,7 +384,7 @@ public class MineCommands {
 		if (!material.isBlock()) {
 			sender.sendMessage(phrase("notABlock"));
 			return;
-		}
+		}*/
 		/*
 		byte data = 0;
 		if (bits.length == 2) {
@@ -440,148 +448,158 @@ public class MineCommands {
 		if (invalidMines(sender, mines)) return;
 		String setting = args[args.length - 2];
 		String value = args[args.length - 1];
-		// find a better way to handle the flags
-		if (setting.equalsIgnoreCase("resetEvery") || setting.equalsIgnoreCase("resetDelay")) {
-			int delay;
-			try {
-				delay = Integer.valueOf(value);
-			} catch (NumberFormatException nfe) {
-				sender.sendMessage(phrase("badResetDelay"));
-				return;
-			}
-			if (delay < 0) {
-				sender.sendMessage(phrase("badResetDelay"));
-				return;
-			}
-			mines[0].setResetDelay(delay);
-			if (delay == 0) {
-				sender.sendMessage(phrase("resetDelayCleared", mines[0]));
-			} else {
-				sender.sendMessage(phrase("resetDelaySet", mines[0], delay));
-			}
-			plugin.buffSave();
-			return;
-		} else if (setting.equalsIgnoreCase("resetWarnings") || setting.equalsIgnoreCase("resetWarning")) {
-			String[] bits = value.split(",");
-			List<Integer> warnings = mines[0].getResetWarnings();
-			List<Integer> oldList = new LinkedList<>(warnings);
-			warnings.clear();
-			for (String bit : bits) {
+
+		switch (setting.toUpperCase()){
+			case "RESETEVERY":
+			case "RESETDELAY": {
+				int delay;
 				try {
-					warnings.add(Integer.valueOf(bit));
+					delay = Integer.valueOf(value);
 				} catch (NumberFormatException nfe) {
-					sender.sendMessage(phrase("badWarningList"));
+					sender.sendMessage(phrase("badResetDelay"));
 					return;
 				}
+				if (delay < 0) {
+					sender.sendMessage(phrase("badResetDelay"));
+					return;
+				}
+				mines[0].setResetDelay(delay);
+				if (delay == 0) {
+					sender.sendMessage(phrase("resetDelayCleared", mines[0]));
+				} else {
+					sender.sendMessage(phrase("resetDelaySet", mines[0], delay));
+				}
+				plugin.buffSave();
+				break;
 			}
-			//Validate warnings
-			for (Integer warning : warnings) {
-				if (warning >= mines[0].getResetDelay()) {
+			case "RESETWARNINGS":
+			case "RESETWARNING": {
+				String[] bits = value.split(",");
+				List<Integer> warnings = mines[0].getResetWarnings();
+				List<Integer> oldList = new LinkedList<>(warnings);
+				warnings.clear();
+				for (String bit : bits) {
+					try {
+						warnings.add(Integer.valueOf(bit));
+					} catch (NumberFormatException nfe) {
+						sender.sendMessage(phrase("badWarningList"));
+						return;
+					}
+				}
+				//Validate warnings
+				for (Integer warning : warnings) {
+					if (warning >= mines[0].getResetDelay()) {
+						sender.sendMessage(phrase("badWarningList"));
+						mines[0].setResetWarnings(oldList);
+						return;
+					}
+				}
+				if (warnings.contains(0) && warnings.size() == 1) {
+					warnings.clear();
+					sender.sendMessage(phrase("warningListCleared", mines[0]));
+					return;
+				} else if (warnings.contains(0)) {
 					sender.sendMessage(phrase("badWarningList"));
 					mines[0].setResetWarnings(oldList);
 					return;
 				}
+				sender.sendMessage(phrase("warningListSet", mines[0]));
+				plugin.buffSave();
+				break;
 			}
-			if (warnings.contains(0) && warnings.size() == 1) {
-				warnings.clear();
-				sender.sendMessage(phrase("warningListCleared", mines[0]));
-				return;
-			} else if (warnings.contains(0)) {
-				sender.sendMessage(phrase("badWarningList"));
-				mines[0].setResetWarnings(oldList);
-				return;
-			}
-			sender.sendMessage(phrase("warningListSet", mines[0]));
-			plugin.buffSave();
-			return;
-		} else if (setting.equalsIgnoreCase("surface")) {
-			Material m = XMaterial.fromString(value).parseMaterial();
-			//Match material
-			/*
-			String[] bits = value.split(":");
-			Material m = plugin.matchMaterial(bits[0]);*/
-			if (m == null) {
-				sender.sendMessage(phrase("unknownBlock"));
-				return;
-			}
-			if (!m.isBlock()) {
-				sender.sendMessage(phrase("notABlock"));
-				return;
-			}
-			/*
-			byte data = 0;
-			if (bits.length == 2) {
-				try {
-					data = Byte.valueOf(bits[1]);
-				} catch (NumberFormatException nfe) {
+			case "SURFACE": {
+				Material m = XMaterial.fromString(value).parseMaterial();
+				if (m == null) {
 					sender.sendMessage(phrase("unknownBlock"));
 					return;
 				}
-			}*/
-			if (m.equals(Material.AIR)) {
-				mines[0].setSurface(null);
-				sender.sendMessage(phrase("surfaceBlockCleared", mines[0]));
+				if (!m.isBlock()) {
+					sender.sendMessage(phrase("notABlock"));
+					return;
+				}
+
+				if (m.equals(Material.AIR)) {
+					mines[0].setSurface(null);
+					sender.sendMessage(phrase("surfaceBlockCleared", mines[0]));
+					plugin.buffSave();
+					return;
+				}
+				//SerializableBlock block = new SerializableBlock(m.getId(), data);
+				mines[0].setSurface(m);
+				sender.sendMessage(phrase("surfaceBlockSet", mines[0]));
+				plugin.buffSave();
+				break;
+			}
+			case "FILL":
+			case "FILLMODE": {
+				//Match true or false
+				if (trueValue(value)) {
+					mines[0].setFillMode(true);
+					sender.sendMessage(phrase("fillModeEnabled"));
+					plugin.buffSave();
+					return;
+				} else if (falseValue(value)) {
+					mines[0].setFillMode(false);
+					sender.sendMessage(phrase("fillModeDisabled"));
+					plugin.buffSave();
+					return;
+				}
+				sender.sendMessage(phrase("invalidFillMode"));
+				break;
+			}
+			case "ISSILENT":
+			case "SILENT":
+			case "SILENCE": {
+				if (trueValue(value)) {
+					mines[0].setSilence(true);
+					sender.sendMessage(phrase("mineIsNowSilent", mines[0]));
+					plugin.buffSave();
+					return;
+				} else if (falseValue(value)) {
+					mines[0].setSilence(false);
+					sender.sendMessage(phrase("mineIsNoLongerSilent", mines[0]));
+					plugin.buffSave();
+					return;
+				}
+				sender.sendMessage(phrase("badBoolean"));
+				break;
+			}
+			case "RESETPERCENT":{
+				StringBuilder psb = new StringBuilder(value);
+				psb.deleteCharAt(psb.length() - 1);
+				double percentage;
+				try {
+					percentage = Double.valueOf(psb.toString());
+				} catch (NumberFormatException nfe) {
+					sender.sendMessage(phrase("badPercentage"));
+					return;
+				}
+				if (percentage > 100 || percentage <= 0) {
+					sender.sendMessage(phrase("badPercentage"));
+					return;
+				}
+				percentage = percentage / 100; //Make it a programmatic percentage
+				mines[0].setResetPercent(percentage);
+
+				if (percentage < 0) {
+					sender.sendMessage(phrase("resetDelayCleared", mines[0]));
+				} else {
+					sender.sendMessage(phrase("resetPercentageSet", mines[0], (int) (percentage * 100)));
+				}
 				plugin.buffSave();
 				return;
 			}
-			//SerializableBlock block = new SerializableBlock(m.getId(), data);
-			mines[0].setSurface(m);
-			sender.sendMessage(phrase("surfaceBlockSet", mines[0]));
-			plugin.buffSave();
-			return;
-		} else if (setting.equalsIgnoreCase("fill") || setting.equalsIgnoreCase("fillMode")) {
-			//Match true or false
-			if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("enabled")) {
-				mines[0].setFillMode(true);
-				sender.sendMessage(phrase("fillModeEnabled"));
-				plugin.buffSave();
-				return;
-			} else if (value.equalsIgnoreCase("false") || value.equalsIgnoreCase("no") || value.equalsIgnoreCase("disabled")) {
-				mines[0].setFillMode(false);
-				sender.sendMessage(phrase("fillModeDisabled"));
-				plugin.buffSave();
-				return;
-			}
-			sender.sendMessage(phrase("invalidFillMode"));
-		} else if (setting.equalsIgnoreCase("isSilent") || setting.equalsIgnoreCase("silent") || setting.equalsIgnoreCase("silence")) {
-			if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("yes") || value.equalsIgnoreCase("enabled")) {
-				mines[0].setSilence(true);
-				sender.sendMessage(phrase("mineIsNowSilent", mines[0]));
-				plugin.buffSave();
-				return;
-			} else if (value.equalsIgnoreCase("false") || value.equalsIgnoreCase("no") || value.equalsIgnoreCase("disabled")) {
-				mines[0].setSilence(false);
-				sender.sendMessage(phrase("mineIsNoLongerSilent", mines[0]));
-				plugin.buffSave();
-				return;
-			}
-			sender.sendMessage(phrase("badBoolean"));
-		} else if (setting.equalsIgnoreCase("resetPercent")) {
-			StringBuilder psb = new StringBuilder(value);
-			psb.deleteCharAt(psb.length() - 1);
-			double percentage;
-			try {
-				percentage = Double.valueOf(psb.toString());
-			} catch (NumberFormatException nfe) {
-				sender.sendMessage(phrase("badPercentage"));
-				return;
-			}
-			if (percentage > 100 || percentage <= 0) {
-				sender.sendMessage(phrase("badPercentage"));
-				return;
-			}
-			percentage = percentage / 100; //Make it a programmatic percentage
-			mines[0].setResetPercent(percentage);
-			
-			if (percentage < 0) {
-				sender.sendMessage(phrase("resetDelayCleared", mines[0]));
-			} else {
-				sender.sendMessage(phrase("resetPercentageSet", mines[0], (int) (percentage * 100)));
-			}
-			plugin.buffSave();
-			return;
+			default: sender.sendMessage(phrase("unknownFlag"));
 		}
-		sender.sendMessage(phrase("unknownFlag"));
+	}
+
+	private boolean trueValue(String value){
+		value = value.toLowerCase();
+		return (value.equals("true")||value.equals("yes")||value.equals("enabled"));
+	}
+	private boolean falseValue(String value){
+		value = value.toLowerCase();
+		return (value.equals("false")||value.equals("no")||value.equals("disabled"));
 	}
 	
 	@Command(aliases = {"erase"},
