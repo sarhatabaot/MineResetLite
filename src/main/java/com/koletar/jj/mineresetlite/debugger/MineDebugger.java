@@ -1,7 +1,6 @@
 package com.koletar.jj.mineresetlite.debugger;
 
 import com.koletar.jj.mineresetlite.Mine;
-import com.koletar.jj.mineresetlite.SerializableBlock;
 import org.bukkit.Material;
 
 import java.util.HashMap;
@@ -29,13 +28,4 @@ public class MineDebugger {
         return sComposition.toString();
     }
 
-    /*
-    public static String toStringComposition(Map<SerializableBlock, Double> composition) {
-        //Make string form of composition
-        Map<String, Double> sComposition = new HashMap<>();
-        for (Map.Entry<SerializableBlock, Double> entry : composition.entrySet()) {
-            sComposition.put(entry.getKey().toString(), entry.getValue());
-        }
-        return sComposition.toString();
-    }*/
 }
