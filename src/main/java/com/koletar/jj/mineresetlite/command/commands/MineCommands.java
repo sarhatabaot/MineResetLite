@@ -4,6 +4,7 @@ import com.koletar.jj.mineresetlite.*;
 import com.koletar.jj.mineresetlite.command.Command;
 import com.koletar.jj.mineresetlite.debugger.MineDebugger;
 import com.koletar.jj.mineresetlite.util.StringTools;
+import com.koletar.jj.mineresetlite.util.XMaterial;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -144,6 +145,7 @@ public class MineCommands {
 		World world = null;
 		Vector p1 = null;
 		Vector p2 = null;
+
 		//Native selection techniques?
 		if (point1.containsKey(player) && point2.containsKey(player)) {
 			world = point1.get(player).getWorld();
@@ -154,11 +156,17 @@ public class MineCommands {
 			p1 = point1.get(player).toVector();
 			p2 = point2.get(player).toVector();
 		}
-		Selection selection = plugin.getWorldEdit().getSelection(player);
-		if (selection != null) {
-			world = selection.getWorld();
-			p1 = selection.getMinimumPoint().toVector();
-			p2 = selection.getMaximumPoint().toVector();
+
+		// Converts the selection to a vector, weird way to do this,
+		// there should be a way to just make it a rounded location.
+		// selection
+		if(plugin.getWorldEdit()!=null) {
+			Selection selection = plugin.getWorldEdit().getSelection(player);
+			if (selection != null) {
+				world = selection.getWorld();
+				p1 = selection.getMinimumPoint().toVector();
+				p2 = selection.getMaximumPoint().toVector();
+			}
 		}
 		
 		if (p1 == null) {
@@ -168,7 +176,7 @@ public class MineCommands {
 
 		//Construct mine name
 		String name = StringTools.buildSpacedArgument(args);
-		if (isUniqueName(name)) {
+		if (!isUniqueName(name)) {
 			player.sendMessage(phrase("nameInUse", name));
 			return;
 		}
@@ -198,6 +206,7 @@ public class MineCommands {
 		if (invalidMines(sender, mines)) return;
 		sender.sendMessage(phrase("mineInfoName", mines[0]));
 		sender.sendMessage(phrase("mineInfoWorld", mines[0].getWorld()));
+
 		//Build composition list
 		StringBuilder csb = new StringBuilder();
 		for (Map.Entry<SerializableBlock, Double> entry : mines[0].getComposition().entrySet()) {
@@ -414,6 +423,7 @@ public class MineCommands {
 		if (invalidMines(sender, mines)) return;
 		String setting = args[args.length - 2];
 		String value = args[args.length - 1];
+		// find a better way to handle the flags
 		if (setting.equalsIgnoreCase("resetEvery") || setting.equalsIgnoreCase("resetDelay")) {
 			int delay;
 			try {
