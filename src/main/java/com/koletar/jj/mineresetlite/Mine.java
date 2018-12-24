@@ -128,7 +128,7 @@ public class Mine implements ConfigurationSerializable {
             isSilent = (Boolean) me.get("isSilent");
         }
         if (me.containsKey("tpPos")) {
-            teleportPosition = (TeleportPosition) me.get("tpPos");
+            teleportPosition = TeleportPosition.deserialize((Map<String,Object>) me.get("tpPos"));
         }
 
         if (me.containsKey("resetPercent")) {
@@ -189,7 +189,6 @@ public class Mine implements ConfigurationSerializable {
             me.put("surface", "");
         }
         //Make string form of composition
-        //Map<String, Double> sComposition = new HashMap<>();
         Map<String, Double> sComposition = new HashMap<>();
         for (Map.Entry<Material, Double> entry : this.composition.entrySet()) {
             sComposition.put(entry.getKey().toString(), entry.getValue());

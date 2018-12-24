@@ -1,5 +1,7 @@
 package com.koletar.jj.mineresetlite;
 
+import com.sun.corba.se.spi.ior.ObjectKey;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +19,14 @@ public class TeleportPosition extends Position {
         this.pitch = pitch;
         this.yaw = yaw;
     }
-
+    public static TeleportPosition deserialize(Map<String, Object> map){
+        int x = (Integer) map.get("x");
+        int y = (Integer) map.get("y");
+        int z = (Integer) map.get("z");
+        int pitch = (Integer) map.get("pitch");
+        int yaw = (Integer) map.get("yaw");
+        return new TeleportPosition(x,y,z,pitch,yaw);
+    }
     public TeleportPosition(Map<String,Object> map){
         super(map);
         this.pitch = (Integer) map.get("pitch");
