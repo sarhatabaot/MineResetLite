@@ -283,44 +283,16 @@ public class MineCommands {
 		if (invalidMines(sender, mines)) {
 			return;
 		}
-
-		//Match material
-		//String[] bits = args[args.length - 2].split(":");
+		
 		String strBlock = args[args.length-2];
-		//Material material = plugin.matchMaterial(bits[0]);
 		Material material = XMaterial.fromString(strBlock).parseMaterial();
 
 		if(!isMaterial(material,sender)){
 			return;
 		}
-		/*
-		if (material == null) {
-			sender.sendMessage(phrase("unknownBlock"));
-			return;
-		}
-		if (!material.isBlock()) {
-			sender.sendMessage(phrase("notABlock"));
-			return;
-		}*/
 
-		/*
-		byte data = 0;
-		if (bits.length == 2) {
-			try {
-				data = Byte.valueOf(bits[1]);
-			} catch (NumberFormatException nfe) {
-				sender.sendMessage(phrase("unknownBlock"));
-				return;
-			}
-		}*/
-
-		// Parse percentage
-		// Prone to mistakes from the users side, shouldn't have to add '%' to the command.
 		String percentageS = args[args.length - 1];
-		/*if (!percentageS.endsWith("%")) {
-			sender.sendMessage(phrase("badPercentage"));
-			return;
-		}*/
+
 		StringBuilder psb = new StringBuilder(percentageS);
 		if(percentageS.endsWith("%")) {
 			psb.deleteCharAt(psb.length() - 1); //deletes the '%' should be stripped out only if it exists
@@ -337,7 +309,7 @@ public class MineCommands {
 			return;
 		}
 		percentage = percentage / 100; //Make it a programmatic percentage
-		//SerializableBlock block = new SerializableBlock(material.getId(), data);
+
 		Double oldPercentage = mines[0].getComposition().get(material);
 		double total = 0;
 		for (Map.Entry<Material, Double> entry : mines[0].getComposition().entrySet()) {
@@ -370,33 +342,11 @@ public class MineCommands {
 		if (invalidMines(sender, mines)) {
 			return;
 		}
-		//Match material
-		//String[] bits = args[args.length - 1].split(":");
-		//Material material = plugin.matchMaterial(bits[0]);
 		Material material = XMaterial.fromString(args[args.length-1]).parseMaterial();
 		if(isMaterial(material,sender))
 			return;
-		/*
-		if (material == null) {
-			sender.sendMessage(phrase("unknownBlock"));
-			return;
-		}
-		if (!material.isBlock()) {
-			sender.sendMessage(phrase("notABlock"));
-			return;
-		}*/
-		/*
-		byte data = 0;
-		if (bits.length == 2) {
-			try {
-				data = Byte.valueOf(bits[1]);
-			} catch (NumberFormatException nfe) {
-				sender.sendMessage(phrase("unknownBlock"));
-				return;
-			}
-		}*/
+
 		//Does the mine contain this block?
-		//SerializableBlock block = new SerializableBlock(material.getId(), data);
 		for (Map.Entry<Material, Double> entry : mines[0].getComposition().entrySet()) {
 			if (entry.getKey().equals(material)) {
 				mines[0].getComposition().remove(entry.getKey());
@@ -429,8 +379,11 @@ public class MineCommands {
 		}
 	}
 
-    /** TODO: Reduce complexity
-     */
+	/**
+	 * flag command
+	 * @param sender sender of the command.
+	 * @param args arguments, settings:value.
+	 */
 	@Command(aliases = {"flag", "f"},
 			description = "Set various properties of a mine, including automatic resets",
 			help = {"Available flags:",
@@ -445,7 +398,8 @@ public class MineCommands {
 			min = 3, max = -1, onlyPlayers = false)
 	public void flag(CommandSender sender, String[] args) {
 		Mine[] mines = plugin.matchMines(StringTools.buildSpacedArgument(args, 2));
-		if (invalidMines(sender, mines)) return;
+		if (invalidMines(sender, mines))
+			return;
 		String setting = args[args.length - 2];
 		String value = args[args.length - 1];
 
@@ -509,12 +463,7 @@ public class MineCommands {
 			}
 			case "SURFACE": {
 				Material m = XMaterial.fromString(value).parseMaterial();
-				if (m == null) {
-					sender.sendMessage(phrase("unknownBlock"));
-					return;
-				}
-				if (!m.isBlock()) {
-					sender.sendMessage(phrase("notABlock"));
+				if(!isMaterial(m,sender)){
 					return;
 				}
 
