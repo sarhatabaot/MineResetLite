@@ -43,14 +43,14 @@ public class MineResetLite extends JavaPlugin {
 	public List<Mine> mines;
 	private Logger logger;
 	private CommandManager commandManager;
-	private WorldEditPlugin worldEdit = null;
+	private WorldEditPlugin worldEdit;
 	private int saveTaskId = -1;
 	private int resetTaskId = -1;
 	private BukkitTask updateTask = null;
 	private boolean needsUpdate;
 	
 	static {
-		ConfigurationSerialization.registerClass(Mine.class);
+		//ConfigurationSerialization.registerClass(Mine.class);
 		//ConfigurationSerialization.registerClass(Position.class);
 		//ConfigurationSerialization.registerClass(TeleportPosition.class);
 	}
@@ -78,10 +78,16 @@ public class MineResetLite extends JavaPlugin {
 			logger.severe("Plugin Loading Aborted!");
 			return;
 		}
+		ConfigurationSerialization.registerClass(Mine.class);
+
 		commandManager = new CommandManager();
 		commandManager.register(CommandManager.class, commandManager);
+		if(Config.isDebug()) {logger.info("register command manager.");}
 		commandManager.register(MineCommands.class, new MineCommands(this));
+		if(Config.isDebug()) {logger.info("register mine commands.");}
 		commandManager.register(PluginCommands.class, new PluginCommands(this));
+		if(Config.isDebug()) {logger.info("register plugin commands.");}
+
 
 		initPhrases();
 		if(Config.isDebug()) {logger.info("Init phrases done.");}
@@ -92,7 +98,7 @@ public class MineResetLite extends JavaPlugin {
 		initTasks();
 		if(Config.isDebug()) {logger.info("Init tasks done.");}
 		registerListeners();
-		if(Config.isDebug()) {logger.info("registered listeners");}
+		if(Config.isDebug()) {logger.info("registered listeners.");}
 
 		logger.info("MineResetLite version " + getDescription().getVersion() + " enabled!");
 	}

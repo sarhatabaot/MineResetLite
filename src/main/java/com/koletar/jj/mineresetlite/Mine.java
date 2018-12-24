@@ -37,7 +37,7 @@ public class Mine implements ConfigurationSerializable {
 
 	private boolean fillMode;
 
-	private Reset reset;
+	//private Reset reset;
 
 	private int resetDelay;
 	private List<Integer> resetWarnings;
@@ -63,7 +63,6 @@ public class Mine implements ConfigurationSerializable {
 		resetWarnings = new LinkedList<>();
 		setMaxCount();
 	}
-
 	/**
 	 * Deserialize
 	 */
@@ -170,10 +169,10 @@ public class Mine implements ConfigurationSerializable {
 	public Map<String, Object> serialize() {
 		Map<String, Object> me = new HashMap<>();
 
+		me.put("world", this.world.getName());
 		me.put("name", this.name);
 		me.put("maxPos",this.maxPos.serialize());
 		me.put("minPos",this.minPos.serialize());
-		me.put("world", this.world.getName());
 
 		if (this.surface != null) {
 			me.put("surface", this.surface.toString());
@@ -310,6 +309,11 @@ public class Mine implements ConfigurationSerializable {
 				teleportPosition.getPitch());
 	}
 
+	/**
+	 *
+	 * @param playerLocation
+	 * @return
+	 */
 	@NotNull
 	private Location getSafeLocation(Location playerLocation){
 		Location location = new Location(world, playerLocation.getX(), maxPos.getY() + 1D, playerLocation.getZ());
@@ -324,6 +328,10 @@ public class Mine implements ConfigurationSerializable {
 		}
 		return location;
 	}
+
+	/**
+	 *
+	 */
 	private void teleportPlayers(){
 		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
 			Location playerLocation = player.getLocation();
@@ -337,6 +345,10 @@ public class Mine implements ConfigurationSerializable {
 			}
 		}
 	}
+
+	/**
+	 * TODO: Make a reflection util
+	 */
 	public void reset() {
 		//Get probability map
 		List<CompositionEntry> probabilityMap = mapComposition(composition);
@@ -355,22 +367,27 @@ public class Mine implements ConfigurationSerializable {
 							block.setType(surface.getBlockType());
 							if (surface.getData() > 0) {
 								try {
-									//ReflectionUtil.makePerform(block, "setData", new Object[]{surface.getData()});
+									block.setData(surface.getData());
+									//ReflectionUtil.makePerform(block, "setData", new Object[]{surface.getData()}); // actually sets the block
 								} catch (Throwable ignore) {
 								
 								}
 							}
 							continue;
 						}
+						// generate random block
 						double r = rand.nextDouble();
 						for (CompositionEntry ce : probabilityMap) {
 							if (r <= ce.getChance()) {
 								//world.getBlockAt(x, y, z).setTypeIdAndData(ce.getBlock().getBlockId(), ce.getBlock().getData(), false);
 								Block b = world.getBlockAt(x, y, z);
 								b.setType(ce.getBlock().getBlockType());
+								// set block data
+								// only run on versions prior to 1.13
 								if (ce.getBlock().getData() > 0) {
 									try {
-										//ReflectionUtil.makePerform(b, "setData", new Object[]{ce.getBlock().getData()});
+										b.setData(ce.getBlock().getData());
+										//ReflectionUtil.makePerform(b, "setData", new Object[]{ce.getBlock().getData()}); //actually sets the block
 									} catch (Throwable ignore) {
 									
 									}
