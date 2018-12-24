@@ -209,14 +209,15 @@ public class MineCommands {
 
 		//Build composition list
 		StringBuilder csb = new StringBuilder();
-		for (Map.Entry<SerializableBlock, Double> entry : mines[0].getComposition().entrySet()) {
+		for (Map.Entry<Material, Double> entry : mines[0].getComposition().entrySet()) {
 			csb.append(entry.getValue() * 100);
 			csb.append("% ");
-			csb.append(Material.getMaterial("" + entry.getKey().getBlockId()).toString());
+			csb.append(Material.getMaterial("" + entry.getKey()).toString());
+			/*
 			if (entry.getKey().getData() != 0) {
 				csb.append(":");
 				csb.append(entry.getKey().getData());
-			}
+			}*/
 			csb.append(", ");
 		}
 		if (csb.length() > 2) {
@@ -250,6 +251,19 @@ public class MineCommands {
 		return false;
 	}
 
+	private boolean isMaterial(Material material, CommandSender sender){
+		boolean isMaterial = true;
+		if(material == null){
+			sender.sendMessage(phrase("unknownBlock"));
+			isMaterial = false;
+		}
+		if(!material.isBlock()){
+			sender.sendMessage(phrase("notABlock"));
+			isMaterial = false;
+		}
+		return isMaterial;
+	}
+
     /** TODO: Reduce complexity of method
      *  Sets the composition of a mine
 	 * @param args
@@ -270,8 +284,10 @@ public class MineCommands {
 		}
 
 		//Match material
-		String[] bits = args[args.length - 2].split(":");
-		Material material = plugin.matchMaterial(bits[0]);
+		//String[] bits = args[args.length - 2].split(":");
+		String strBlock = args[args.length-2];
+		//Material material = plugin.matchMaterial(bits[0]);
+		Material material = XMaterial.fromString(strBlock).parseMaterial();
 
 		if (material == null) {
 			sender.sendMessage(phrase("unknownBlock"));
@@ -282,6 +298,7 @@ public class MineCommands {
 			return;
 		}
 
+		/*
 		byte data = 0;
 		if (bits.length == 2) {
 			try {
@@ -290,7 +307,7 @@ public class MineCommands {
 				sender.sendMessage(phrase("unknownBlock"));
 				return;
 			}
-		}
+		}*/
 
 		// Parse percentage
 		// Prone to mistakes from the users side, shouldn't have to add '%' to the command.
@@ -315,28 +332,26 @@ public class MineCommands {
 			return;
 		}
 		percentage = percentage / 100; //Make it a programmatic percentage
-		SerializableBlock block = new SerializableBlock(material.getId(), data);
-		Double oldPercentage = mines[0].getComposition().get(block);
+		//SerializableBlock block = new SerializableBlock(material.getId(), data);
+		Double oldPercentage = mines[0].getComposition().get(material);
 		double total = 0;
-		for (Map.Entry<SerializableBlock, Double> entry : mines[0].getComposition().entrySet()) {
-			if (!entry.getKey().equals(block)) {
+		for (Map.Entry<Material, Double> entry : mines[0].getComposition().entrySet()) {
+			if (!entry.getKey().equals(material)) {
 				total += entry.getValue();
-			} else {
-				block = entry.getKey();
 			}
 		}
 		total += percentage;
 		if (total > 1) {
 			sender.sendMessage(phrase("insaneCompositionChange"));
 			if (oldPercentage == null) {
-				mines[0].getComposition().remove(block);
+				mines[0].getComposition().remove(material);
 			} else {
-				mines[0].getComposition().put(block, oldPercentage);
+				mines[0].getComposition().put(material, oldPercentage);
 			}
 			return;
 		}
-		mines[0].getComposition().put(block, percentage);
-		sender.sendMessage(phrase("mineCompositionSet", mines[0], percentage * 100, block, (1 - mines[0].getCompositionTotal()) * 100));
+		mines[0].getComposition().put(material, percentage);
+		sender.sendMessage(phrase("mineCompositionSet", mines[0], percentage * 100, material, (1 - mines[0].getCompositionTotal()) * 100));
 		plugin.buffSave();
 	}
 	
@@ -351,8 +366,9 @@ public class MineCommands {
 			return;
 		}
 		//Match material
-		String[] bits = args[args.length - 1].split(":");
-		Material material = plugin.matchMaterial(bits[0]);
+		//String[] bits = args[args.length - 1].split(":");
+		//Material material = plugin.matchMaterial(bits[0]);
+		Material material = XMaterial.fromString(args[args.length-1]).parseMaterial();
 		if (material == null) {
 			sender.sendMessage(phrase("unknownBlock"));
 			return;
@@ -361,6 +377,7 @@ public class MineCommands {
 			sender.sendMessage(phrase("notABlock"));
 			return;
 		}
+		/*
 		byte data = 0;
 		if (bits.length == 2) {
 			try {
@@ -369,17 +386,17 @@ public class MineCommands {
 				sender.sendMessage(phrase("unknownBlock"));
 				return;
 			}
-		}
+		}*/
 		//Does the mine contain this block?
-		SerializableBlock block = new SerializableBlock(material.getId(), data);
-		for (Map.Entry<SerializableBlock, Double> entry : mines[0].getComposition().entrySet()) {
-			if (entry.getKey().equals(block)) {
+		//SerializableBlock block = new SerializableBlock(material.getId(), data);
+		for (Map.Entry<Material, Double> entry : mines[0].getComposition().entrySet()) {
+			if (entry.getKey().equals(material)) {
 				mines[0].getComposition().remove(entry.getKey());
-				sender.sendMessage(phrase("blockRemovedFromMine", mines[0], block, (1 - mines[0].getCompositionTotal()) * 100));
+				sender.sendMessage(phrase("blockRemovedFromMine", mines[0], material, (1 - mines[0].getCompositionTotal()) * 100));
 				return;
 			}
 		}
-		sender.sendMessage(phrase("blockNotInMine", mines[0], block));
+		sender.sendMessage(phrase("blockNotInMine", mines[0], material));
 		plugin.buffSave();
 	}
 	
@@ -478,9 +495,11 @@ public class MineCommands {
 			plugin.buffSave();
 			return;
 		} else if (setting.equalsIgnoreCase("surface")) {
+			Material m = XMaterial.fromString(value).parseMaterial();
 			//Match material
+			/*
 			String[] bits = value.split(":");
-			Material m = plugin.matchMaterial(bits[0]);
+			Material m = plugin.matchMaterial(bits[0]);*/
 			if (m == null) {
 				sender.sendMessage(phrase("unknownBlock"));
 				return;
@@ -489,6 +508,7 @@ public class MineCommands {
 				sender.sendMessage(phrase("notABlock"));
 				return;
 			}
+			/*
 			byte data = 0;
 			if (bits.length == 2) {
 				try {
@@ -497,15 +517,15 @@ public class MineCommands {
 					sender.sendMessage(phrase("unknownBlock"));
 					return;
 				}
-			}
+			}*/
 			if (m.equals(Material.AIR)) {
 				mines[0].setSurface(null);
 				sender.sendMessage(phrase("surfaceBlockCleared", mines[0]));
 				plugin.buffSave();
 				return;
 			}
-			SerializableBlock block = new SerializableBlock(m.getId(), data);
-			mines[0].setSurface(block);
+			//SerializableBlock block = new SerializableBlock(m.getId(), data);
+			mines[0].setSurface(m);
 			sender.sendMessage(phrase("surfaceBlockSet", mines[0]));
 			plugin.buffSave();
 			return;
