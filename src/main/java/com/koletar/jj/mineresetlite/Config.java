@@ -107,7 +107,7 @@ public class Config {
         Config.debug = debug;
     }
 
-    static void initConfig(File dataFolder) throws IOException {
+    public static void initConfig(File dataFolder) throws IOException {
         if (!dataFolder.exists()) {
             dataFolder.mkdir();
         }

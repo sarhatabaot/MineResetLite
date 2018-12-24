@@ -283,7 +283,7 @@ public class MineCommands {
 		if (invalidMines(sender, mines)) {
 			return;
 		}
-		
+
 		String strBlock = args[args.length-2];
 		Material material = XMaterial.fromString(strBlock).parseMaterial();
 

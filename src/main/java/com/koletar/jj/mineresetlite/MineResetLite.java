@@ -49,12 +49,6 @@ public class MineResetLite extends JavaPlugin {
 	private BukkitTask updateTask = null;
 	private boolean needsUpdate;
 	
-	static {
-		//ConfigurationSerialization.registerClass(Mine.class);
-		//ConfigurationSerialization.registerClass(Position.class);
-		//ConfigurationSerialization.registerClass(TeleportPosition.class);
-	}
-	
 	private static class IsMineFile implements FilenameFilter {
 		public boolean accept(File file, String s) {
 			return s.contains(".mine.yml");
@@ -72,13 +66,17 @@ public class MineResetLite extends JavaPlugin {
 	}
 	
 	public void onEnable() {
+		ConfigurationSerialization.registerClass(Mine.class);
+		ConfigurationSerialization.registerClass(Position.class);
+		ConfigurationSerialization.registerClass(TeleportPosition.class);
+
 		logger = getLogger();
 		if (!setupConfig()) {
 			logger.severe("Since I couldn't setup config files properly, I guess this is goodbye.");
 			logger.severe("Plugin Loading Aborted!");
 			return;
 		}
-		ConfigurationSerialization.registerClass(Mine.class);
+
 
 		commandManager = new CommandManager();
 		commandManager.register(CommandManager.class, commandManager);
@@ -90,16 +88,18 @@ public class MineResetLite extends JavaPlugin {
 
 
 		initPhrases();
-		if(Config.isDebug()) {logger.info("Init phrases done.");}
 		initPlugins();
-		if(Config.isDebug()) {logger.info("Init plugins done.");}
 		initMines();
-		if(Config.isDebug()) {logger.info("Init mines done.");}
 		initTasks();
-		if(Config.isDebug()) {logger.info("Init tasks done.");}
 		registerListeners();
-		if(Config.isDebug()) {logger.info("registered listeners.");}
 
+		if(Config.isDebug()) {
+			logger.info("Init phrases done.");
+			logger.info("Init plugins done.");
+			logger.info("Init mines done.");
+			logger.info("Init tasks done.");
+			logger.info("registered listeners.");
+		}
 		logger.info("MineResetLite version " + getDescription().getVersion() + " enabled!");
 	}
 

@@ -19,6 +19,7 @@ public class Position implements ConfigurationSerializable {
         this.z = z;
     }
 
+
     public Position(Map<String,Object> map){
         this.x = (Integer) map.get("x");
         this.y = (Integer) map.get("y");

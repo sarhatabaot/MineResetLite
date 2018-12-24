@@ -428,7 +428,7 @@ public class Mine implements ConfigurationSerializable {
             return block;
         }
 
-        double getChance() {
+        public double getChance() {
             return chance;
         }
     }
