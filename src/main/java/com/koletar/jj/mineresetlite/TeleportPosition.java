@@ -1,7 +1,5 @@
 package com.koletar.jj.mineresetlite;
 
-import com.sun.corba.se.spi.ior.ObjectKey;
-
 import java.util.HashMap;
 import java.util.Map;
 

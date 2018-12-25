@@ -52,12 +52,15 @@ public class MinePlaceholders extends PlaceholderExpansion {
                 break;
             }
             case "percentage":{
+                strPlaceholder = String.valueOf(mines[0].getResetPercent());
                 break;
             }
             case "blocks_mined":{
+                strPlaceholder = String.valueOf(mines[0].getBrokenBlocks());
                 break;
             }
             case "percentage_mined":{
+                strPlaceholder = String.valueOf((mines[0].getBrokenBlocks()/mines[0].getMaxCount())*100);
                 break;
             }
         }

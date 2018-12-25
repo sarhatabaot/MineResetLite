@@ -120,9 +120,11 @@ public class MineResetLite extends JavaPlugin {
 	private void initPlugins(){
 		if (getServer().getPluginManager().isPluginEnabled("WorldEdit")) {
 			this.worldEdit = (WorldEditPlugin) getServer().getPluginManager().getPlugin("WorldEdit");
+			logger.info("WorldEdit hooked.");
 		}
 		if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")){
 			new MinePlaceholders().register();
+			logger.info("MRL PlaceholderExpansion hooked");
 		}
 
 	}
