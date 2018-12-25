@@ -1,6 +1,6 @@
 package com.koletar.jj.mineresetlite.debugger;
 
-import com.koletar.jj.mineresetlite.Mine;
+import com.koletar.jj.mineresetlite.mine.Mine;
 import org.bukkit.Material;
 
 import java.util.HashMap;

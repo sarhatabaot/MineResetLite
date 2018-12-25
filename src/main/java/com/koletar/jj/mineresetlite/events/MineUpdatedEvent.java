@@ -1,6 +1,6 @@
 package com.koletar.jj.mineresetlite.events;
 
-import com.koletar.jj.mineresetlite.Mine;
+import com.koletar.jj.mineresetlite.mine.Mine;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 

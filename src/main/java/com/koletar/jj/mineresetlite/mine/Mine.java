@@ -1,5 +1,6 @@
-package com.koletar.jj.mineresetlite;
+package com.koletar.jj.mineresetlite.mine;
 
+import com.koletar.jj.mineresetlite.MineResetLite;
 import com.koletar.jj.mineresetlite.events.MineUpdatedEvent;
 import com.koletar.jj.mineresetlite.util.Phrases;
 import com.koletar.jj.mineresetlite.util.StringTools;

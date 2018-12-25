@@ -1,4 +1,4 @@
-package com.koletar.jj.mineresetlite;
+package com.koletar.jj.mineresetlite.mine;
 
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;

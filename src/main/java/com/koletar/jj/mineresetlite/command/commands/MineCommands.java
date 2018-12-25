@@ -3,6 +3,8 @@ package com.koletar.jj.mineresetlite.command.commands;
 import com.koletar.jj.mineresetlite.*;
 import com.koletar.jj.mineresetlite.command.Command;
 import com.koletar.jj.mineresetlite.debugger.MineDebugger;
+import com.koletar.jj.mineresetlite.mine.Mine;
+import com.koletar.jj.mineresetlite.mine.Position;
 import com.koletar.jj.mineresetlite.util.StringTools;
 import com.koletar.jj.mineresetlite.util.XMaterial;
 import com.sk89q.worldedit.bukkit.selections.Selection;

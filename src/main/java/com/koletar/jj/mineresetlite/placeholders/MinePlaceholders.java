@@ -1,6 +1,6 @@
 package com.koletar.jj.mineresetlite.placeholders;
 
-import com.koletar.jj.mineresetlite.Mine;
+import com.koletar.jj.mineresetlite.mine.Mine;
 import com.koletar.jj.mineresetlite.MineResetLite;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;

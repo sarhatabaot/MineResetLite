@@ -1,4 +1,4 @@
-package com.koletar.jj.mineresetlite;
+package com.koletar.jj.mineresetlite.mine;
 
 import java.util.HashMap;
 import java.util.Map;
