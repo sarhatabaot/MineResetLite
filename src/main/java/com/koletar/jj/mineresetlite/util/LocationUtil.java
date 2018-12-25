@@ -12,7 +12,7 @@ public class LocationUtil {
      * @param include include pitch and yaw. true = include, false = don't
      * @return Map of serialized location
      */
-    public static Map<String,Object> Serialize(Location location, boolean include){
+    public static Map<String,Object> serialize(Location location, boolean include){
         HashMap<String,Object> serializedLocation = new HashMap<>();
         serializedLocation.put("x",location.getBlockX());
         serializedLocation.put("y",location.getBlockY());

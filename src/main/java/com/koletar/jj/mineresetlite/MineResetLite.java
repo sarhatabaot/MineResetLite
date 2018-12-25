@@ -5,6 +5,7 @@ package com.koletar.jj.mineresetlite;
 import com.koletar.jj.mineresetlite.command.CommandManager;
 import com.koletar.jj.mineresetlite.command.commands.MineCommands;
 import com.koletar.jj.mineresetlite.command.commands.PluginCommands;
+import com.koletar.jj.mineresetlite.placeholders.MinePlaceholders;
 import com.koletar.jj.mineresetlite.tasks.MrlUpdate;
 import com.koletar.jj.mineresetlite.util.Phrases;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
@@ -64,7 +65,6 @@ public class MineResetLite extends JavaPlugin {
 			}
 		}
 	}
-	
 	public void onEnable() {
 		ConfigurationSerialization.registerClass(Mine.class);
 		ConfigurationSerialization.registerClass(Position.class);
@@ -120,7 +120,13 @@ public class MineResetLite extends JavaPlugin {
 	private void initPlugins(){
 		if (getServer().getPluginManager().isPluginEnabled("WorldEdit")) {
 			this.worldEdit = (WorldEditPlugin) getServer().getPluginManager().getPlugin("WorldEdit");
+			logger.info("WorldEdit hooked.");
 		}
+		if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")){
+			new MinePlaceholders().register();
+			logger.info("MRL PlaceholderExpansion hooked");
+		}
+
 	}
 	private void initMines() {
 		mines = new ArrayList<>();

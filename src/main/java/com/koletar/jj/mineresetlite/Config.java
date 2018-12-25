@@ -1,7 +1,6 @@
 package com.koletar.jj.mineresetlite;
 
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.jetbrains.annotations.Contract;
 
 import java.io.BufferedWriter;
 import java.io.File;
