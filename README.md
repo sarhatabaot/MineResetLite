@@ -6,7 +6,8 @@ MineResetLite
 
 Lightweight implementation for automatic mine resets.
 
-## Requirements:
+## Requirements
 * Spigot 1.12.2
-## Optional (Recommended):
+## Optional (Recommended)
 * WorldEdit
+* PlaceholderAPI
