@@ -481,12 +481,12 @@ public class MineCommands {
 			case "FILL":
 			case "FILLMODE": {
 				//Match true or false
-				if (trueValue(value)) {
+				if (positiveValue(value)) {
 					mines[0].setFillMode(true);
 					sender.sendMessage(phrase("fillModeEnabled"));
 					plugin.buffSave();
 					return;
-				} else if (falseValue(value)) {
+				} else if (negativeValue(value)) {
 					mines[0].setFillMode(false);
 					sender.sendMessage(phrase("fillModeDisabled"));
 					plugin.buffSave();
@@ -498,12 +498,12 @@ public class MineCommands {
 			case "ISSILENT":
 			case "SILENT":
 			case "SILENCE": {
-				if (trueValue(value)) {
+				if (positiveValue(value)) {
 					mines[0].setSilence(true);
 					sender.sendMessage(phrase("mineIsNowSilent", mines[0]));
 					plugin.buffSave();
 					return;
-				} else if (falseValue(value)) {
+				} else if (negativeValue(value)) {
 					mines[0].setSilence(false);
 					sender.sendMessage(phrase("mineIsNoLongerSilent", mines[0]));
 					plugin.buffSave();
@@ -541,13 +541,11 @@ public class MineCommands {
 		}
 	}
 
-	private boolean trueValue(String value){
-		value = value.toLowerCase();
-		return (value.equals("true")||value.equals("yes")||value.equals("enabled"));
+	private boolean positiveValue(String value){
+		return (value.equalsIgnoreCase("true")||value.equalsIgnoreCase("yes")||value.equalsIgnoreCase("enabled"));
 	}
-	private boolean falseValue(String value){
-		value = value.toLowerCase();
-		return (value.equals("false")||value.equals("no")||value.equals("disabled"));
+	private boolean negativeValue(String value){
+		return (value.equalsIgnoreCase("false")||value.equalsIgnoreCase("no")||value.equalsIgnoreCase("disabled"));
 	}
 	
 	@Command(aliases = {"erase"},

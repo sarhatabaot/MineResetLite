@@ -11,3 +11,4 @@ MineResetLite.jar
 
 # Maven Stuff #
 target
+dependency-reduced-pom.xml

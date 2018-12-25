@@ -882,6 +882,7 @@ public enum XMaterial {
     ;
     String[] m;
     int data;
+    private static HashMap<String, XMaterial> cachedSearch = new HashMap<>();
 
     XMaterial(int data, String... m){
         this.m = m;
@@ -903,7 +904,7 @@ public enum XMaterial {
         return false;
     }
 
-    private static HashMap<String, XMaterial> cachedSearch = new HashMap<>();
+
     public static XMaterial requestXMaterial(String name, byte data){
         if(cachedSearch.containsKey(name.toUpperCase()+","+data)){
             return cachedSearch.get(name.toUpperCase()+","+data);
