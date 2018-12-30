@@ -450,10 +450,12 @@ public class MineCommands {
             }
             case "RESETPERCENT": {
                 setResetPercent(sender,value,mines);
-                return;
+                break;
             }
-            default:
-                sender.sendMessage(phrase("unknownFlag")+" Try /mrl ? flag");
+            default: {
+                sender.sendMessage(phrase("unknownFlag"));
+                break;
+            }
         }
     }
     private void setResetPercent(CommandSender sender,String value,Mine[] mines){
