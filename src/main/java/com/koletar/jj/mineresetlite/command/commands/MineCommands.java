@@ -214,7 +214,7 @@ public class MineCommands {
 		for (Map.Entry<Material, Double> entry : mines[0].getComposition().entrySet()) {
 			csb.append(entry.getValue() * 100);
 			csb.append("% ");
-			csb.append(Material.getMaterial("" + entry.getKey()).toString());
+			csb.append(XMaterial.fromString("" + entry.getKey()).toString());
 			/*
 			if (entry.getKey().getData() != 0) {
 				csb.append(":");
@@ -538,6 +538,9 @@ public class MineCommands {
 				}
 				plugin.buffSave();
 				return;
+			}
+			case "HELP":{
+				sender.sendMessage("/mrl flag <mine> <resetDelay|resetWarning|fillmode|surface|silent|resetPercent>");
 			}
 			default: sender.sendMessage(phrase("unknownFlag"));
 		}
