@@ -5,7 +5,6 @@ import com.koletar.jj.mineresetlite.mine.Mine;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 public class BrokenBlockEventListener implements Listener {
