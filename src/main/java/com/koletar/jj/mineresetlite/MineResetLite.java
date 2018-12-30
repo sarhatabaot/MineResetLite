@@ -49,13 +49,22 @@ public class MineResetLite extends JavaPlugin {
 	private int resetTaskId = -1;
 	private BukkitTask updateTask = null;
 	private boolean needsUpdate;
-	
+
+	private String newVersion;
+
+	public String getNewVersion() {
+		return newVersion;
+	}
+
+	public void setNewVersion(String newVersion) {
+		this.newVersion = newVersion;
+	}
+
 	private static class IsMineFile implements FilenameFilter {
 		public boolean accept(File file, String s) {
 			return s.contains(".mine.yml");
 		}
 	}
-
 	public boolean isNeedsUpdate() {
 		return needsUpdate;
 	}
@@ -87,15 +96,21 @@ public class MineResetLite extends JavaPlugin {
 			logger.info("Init plugins done.");
 			logger.info("Init mines done.");
 			logger.info("Init tasks done.");
-			logger.info("registered listeners.");
+			logger.info("Registered listeners.");
 		}
 		logger.info("MineResetLite version " + getDescription().getVersion() + " enabled!");
+
+		if(needsUpdate && Config.getCheckForUpdates()){
+			logger.warning("New update found:"+this.getNewVersion()+"You are running:"+this.getDescription().getVersion());
+			logger.warning("Update at: https://github.com/sarhatabaot/MineResetLite/releases");
+		}
 	}
 
 	private void initTasks(){
 		if(Config.getCheckForUpdates()){
+			SimpleUpdateChecker checker = new SimpleUpdateChecker(this);
 			updateTask = Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(
-					this, new SimpleUpdateChecker(this),20 * 15);
+					this, checker,20 * 15);
 			logger.info("Check for update done.");
 		}
 		// MineReset Task

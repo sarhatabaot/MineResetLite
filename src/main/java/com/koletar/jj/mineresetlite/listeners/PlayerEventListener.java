@@ -15,11 +15,11 @@ public class PlayerEventListener implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event){
         if (event.getPlayer().hasPermission("mineresetlite.updates") && plugin.isNeedsUpdate()) {
-            event.getPlayer().sendMessage(phrase("updateWarning1"));
-            event.getPlayer().sendMessage(phrase("updateWarning2"));
+            event.getPlayer().sendMessage("\u00A7f[\u00A74MRL\u00A7f] New update found: "+plugin.getNewVersion()+" You are running: "+plugin.getDescription().getVersion());
+            event.getPlayer().sendMessage("\u00A7f[\u00A74MRL\u00A7f] Update at: https://github.com/sarhatabaot/MineResetLite/releases");
         }
     }
 
