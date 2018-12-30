@@ -889,6 +889,14 @@ public enum XMaterial {
         this.data = data;
     }
 
+    public String[] getM() {
+        return m;
+    }
+
+    public int getData() {
+        return data;
+    }
+
     public ItemStack parseItem(){
         Material mat = parseMaterial();
         if(isNewVersion()){

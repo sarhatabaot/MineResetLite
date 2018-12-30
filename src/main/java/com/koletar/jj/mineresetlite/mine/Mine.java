@@ -37,7 +37,7 @@ public class Mine implements ConfigurationSerializable {
     private Position maxPos;
 
     private Material surface;
-    private Map<Material, Double> composition;
+    private Map<XMaterial, Double> composition;
 
     private boolean fillMode;
 
@@ -71,6 +71,7 @@ public class Mine implements ConfigurationSerializable {
     /**
      * Deserialize
      */
+    @SuppressWarnings("unchecked")
     public Mine(Map<String, Object> me) {
         try {
         	this.minPos = Position.deserialize((Map<String,Object>) me.get("minPos"));
@@ -96,7 +97,7 @@ public class Mine implements ConfigurationSerializable {
             Map<String, Double> sComposition = (Map<String, Double>) me.get("composition");
             this.composition = new HashMap<>();
             for (Map.Entry<String, Double> entry : sComposition.entrySet()) {
-                this.composition.put(XMaterial.fromString(entry.getKey()).parseMaterial(), entry.getValue());
+                this.composition.put(XMaterial.fromString(entry.getKey()), entry.getValue());
             }
         } catch (Throwable t) {
             throw new IllegalArgumentException("Error deserializing composition");
@@ -191,7 +192,7 @@ public class Mine implements ConfigurationSerializable {
         }
         //Make string form of composition
         Map<String, Double> sComposition = new HashMap<>();
-        for (Map.Entry<Material, Double> entry : this.composition.entrySet()) {
+        for (Map.Entry<XMaterial, Double> entry : this.composition.entrySet()) {
             sComposition.put(entry.getKey().toString(), entry.getValue());
         }
         me.put("composition", sComposition);
@@ -273,7 +274,7 @@ public class Mine implements ConfigurationSerializable {
         return name;
     }
 
-    public Map<Material, Double> getComposition() {
+    public Map<XMaterial, Double> getComposition() {
         return composition;
     }
 
@@ -362,7 +363,7 @@ public class Mine implements ConfigurationSerializable {
      */
     public void reset() {
         //Get probability map
-        Map<Material, Double> probabilityMap = mapComposition(composition);
+        Map<XMaterial, Double> probabilityMap = mapComposition(composition);
         //Pull players out
         teleportPlayers();
         //Actually reset
@@ -379,10 +380,11 @@ public class Mine implements ConfigurationSerializable {
                         }
                         // generate random block
                         double r = rand.nextDouble();
-                        for (Map.Entry<Material, Double> entry : probabilityMap.entrySet()) {
+                        for (Map.Entry<XMaterial, Double> entry : probabilityMap.entrySet()) {
                             if (r <= entry.getValue()) {
                                 Block b = world.getBlockAt(x, y, z);
-                                b.setType(entry.getKey());
+                                b.setType(entry.getKey().parseMaterial());
+                                b.setData((byte)entry.getKey().getData());
                                 break;
                             }
                         }
@@ -419,23 +421,23 @@ public class Mine implements ConfigurationSerializable {
      * @param compositionIn
      * @return
      */
-    private static Map<Material, Double> mapComposition(Map<Material, Double> compositionIn) {
-        HashMap<Material, Double> probabilityMap = new HashMap<>();
+    private static Map<XMaterial, Double> mapComposition(Map<XMaterial, Double> compositionIn) {
+        HashMap<XMaterial, Double> probabilityMap = new HashMap<>();
         //ArrayList<CompositionEntry> probabilityMap = new ArrayList<>();
-        Map<Material, Double> composition = new HashMap<>(compositionIn);
+        Map<XMaterial, Double> composition = new HashMap<>(compositionIn);
         //gets total percentage in composition
         double max = 0;
-        for (Map.Entry<Material, Double> entry : composition.entrySet()) {
+        for (Map.Entry<XMaterial, Double> entry : composition.entrySet()) {
             max += entry.getValue();
         }
         //Pad the remaining percentages with air
         if (max < 1) {
-            composition.put(Material.AIR, 1 - max);
+            composition.put(XMaterial.AIR, 1 - max);
             max = 1;
         }
         // return the composition with padded air (fills up to 100%)
         double i = 0;
-        for (Map.Entry<Material, Double> entry : composition.entrySet()) {
+        for (Map.Entry<XMaterial, Double> entry : composition.entrySet()) {
             double v = entry.getValue() / max;
             i += v;
             probabilityMap.put(entry.getKey(), i);

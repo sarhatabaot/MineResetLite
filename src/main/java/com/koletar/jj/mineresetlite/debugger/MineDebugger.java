@@ -1,6 +1,7 @@
 package com.koletar.jj.mineresetlite.debugger;
 
 import com.koletar.jj.mineresetlite.mine.Mine;
+import com.koletar.jj.mineresetlite.util.XMaterial;
 import org.bukkit.Material;
 
 import java.util.HashMap;
@@ -20,9 +21,9 @@ public class MineDebugger {
         }
         return strMine;
     }
-    public static String toStringComposition(Map<Material,Double> composition){
+    public static String toStringComposition(Map<XMaterial,Double> composition){
         Map<String,Double> sComposition = new HashMap<>();
-        for(Map.Entry<Material,Double> entry: composition.entrySet()) {
+        for(Map.Entry<XMaterial,Double> entry: composition.entrySet()) {
             sComposition.put(entry.getKey().toString(),entry.getValue());
         }
         return sComposition.toString();

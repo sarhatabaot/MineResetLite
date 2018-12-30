@@ -211,7 +211,7 @@ public class MineCommands {
 
 		//Build composition list
 		StringBuilder csb = new StringBuilder();
-		for (Map.Entry<Material, Double> entry : mines[0].getComposition().entrySet()) {
+		for (Map.Entry<XMaterial, Double> entry : mines[0].getComposition().entrySet()) {
 			csb.append(entry.getValue() * 100);
 			csb.append("% ");
 			csb.append(XMaterial.fromString("" + entry.getKey()).toString());
@@ -286,9 +286,9 @@ public class MineCommands {
 		}
 
 		String strBlock = args[args.length-2];
-		Material material = XMaterial.fromString(strBlock).parseMaterial();
+		XMaterial material = XMaterial.fromString(strBlock);
 
-		if(!isMaterial(material,sender)){
+		if(!isMaterial(material.parseMaterial(),sender)){
 			return;
 		}
 
@@ -313,7 +313,7 @@ public class MineCommands {
 
 		Double oldPercentage = mines[0].getComposition().get(material);
 		double total = 0;
-		for (Map.Entry<Material, Double> entry : mines[0].getComposition().entrySet()) {
+		for (Map.Entry<XMaterial, Double> entry : mines[0].getComposition().entrySet()) {
 			if (!entry.getKey().equals(material)) {
 				total += entry.getValue();
 			}
@@ -348,7 +348,7 @@ public class MineCommands {
 			return;
 
 		//Does the mine contain this block?
-		for (Map.Entry<Material, Double> entry : mines[0].getComposition().entrySet()) {
+		for (Map.Entry<XMaterial, Double> entry : mines[0].getComposition().entrySet()) {
 			if (entry.getKey().equals(material)) {
 				mines[0].getComposition().remove(entry.getKey());
 				sender.sendMessage(phrase("blockRemovedFromMine", mines[0], material, (1 - mines[0].getCompositionTotal()) * 100));
