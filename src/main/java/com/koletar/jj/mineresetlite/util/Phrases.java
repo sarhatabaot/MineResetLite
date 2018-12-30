@@ -2,7 +2,6 @@ package com.koletar.jj.mineresetlite.util;
 
 //import com.vk2gpz.vklib.mc.material.MaterialUtil;
 import com.koletar.jj.mineresetlite.mine.Mine;
-import com.koletar.jj.mineresetlite.SerializableBlock;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.BlockCommandSender;

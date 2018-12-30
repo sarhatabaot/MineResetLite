@@ -10,11 +10,11 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
-public class MrlUpdate implements Runnable {
+public class SimpleUpdateChecker implements Runnable {
     private MineResetLite plugin;
     private String versionNumber;
 
-    public MrlUpdate(MineResetLite plugin) {
+    public SimpleUpdateChecker(MineResetLite plugin) {
         this.plugin = plugin;
         this.versionNumber = plugin.getDescription().getVersion();
     }

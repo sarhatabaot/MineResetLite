@@ -1,17 +1,19 @@
 package com.koletar.jj.mineresetlite;
 
-//import com.vk2gpz.mineresetlite.listeners.BlockEventListener;
-//import com.vk2gpz.mineresetlite.listeners.PlayerEventListener;
 import com.koletar.jj.mineresetlite.command.CommandManager;
 import com.koletar.jj.mineresetlite.command.commands.MineCommands;
 import com.koletar.jj.mineresetlite.command.commands.PluginCommands;
+import com.koletar.jj.mineresetlite.listeners.BrokenBlockEventListener;
+import com.koletar.jj.mineresetlite.listeners.PlayerEventListener;
 import com.koletar.jj.mineresetlite.mine.Mine;
 import com.koletar.jj.mineresetlite.mine.Position;
 import com.koletar.jj.mineresetlite.mine.TeleportPosition;
 import com.koletar.jj.mineresetlite.placeholders.MinePlaceholders;
-import com.koletar.jj.mineresetlite.tasks.MrlUpdate;
+import com.koletar.jj.mineresetlite.tasks.SimpleUpdateChecker;
 import com.koletar.jj.mineresetlite.util.Phrases;
+
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -20,15 +22,12 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -37,8 +36,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
-
-import static com.koletar.jj.mineresetlite.util.Phrases.phrase;
 
 /**
  * @author jjkoletar, vk2gpz, sarhatabaot
@@ -58,16 +55,11 @@ public class MineResetLite extends JavaPlugin {
 			return s.contains(".mine.yml");
 		}
 	}
-	
-	private class UpdateWarner implements Listener {
-		@EventHandler(priority = EventPriority.MONITOR)
-		public void onJoin(PlayerJoinEvent event) {
-			if (event.getPlayer().hasPermission("mineresetlite.updates") && needsUpdate) {
-				event.getPlayer().sendMessage(phrase("updateWarning1"));
-				event.getPlayer().sendMessage(phrase("updateWarning2"));
-			}
-		}
+
+	public boolean isNeedsUpdate() {
+		return needsUpdate;
 	}
+
 	public void onEnable() {
 		ConfigurationSerialization.registerClass(Mine.class);
 		ConfigurationSerialization.registerClass(Position.class);
@@ -75,20 +67,14 @@ public class MineResetLite extends JavaPlugin {
 
 		logger = getLogger();
 		if (!setupConfig()) {
-			logger.severe("Since I couldn't setup config files properly, I guess this is goodbye.");
-			logger.severe("Plugin Loading Aborted!");
+			logger.severe("Couldn't setup config files. Plugin loading aborted!");
 			return;
 		}
 
-
 		commandManager = new CommandManager();
 		commandManager.register(CommandManager.class, commandManager);
-		if(Config.isDebug()) {logger.info("register command manager.");}
 		commandManager.register(MineCommands.class, new MineCommands(this));
-		if(Config.isDebug()) {logger.info("register mine commands.");}
 		commandManager.register(PluginCommands.class, new PluginCommands(this));
-		if(Config.isDebug()) {logger.info("register plugin commands.");}
-
 
 		initPhrases();
 		initPlugins();
@@ -109,7 +95,7 @@ public class MineResetLite extends JavaPlugin {
 	private void initTasks(){
 		if(Config.getCheckForUpdates()){
 			updateTask = Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(
-					this, new MrlUpdate(this),20 * 15);
+					this, new SimpleUpdateChecker(this),20 * 15);
 			logger.info("Check for update done.");
 		}
 		// MineReset Task
@@ -169,9 +155,8 @@ public class MineResetLite extends JavaPlugin {
 	
 	private void registerListeners() {
 		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvents(new UpdateWarner(),this);
-		//pm.registerEvents(new BlockEventListener(this), this);
-		//pm.registerEvents(new PlayerEventListener(this), this);
+		pm.registerEvents(new BrokenBlockEventListener(this), this);
+		pm.registerEvents(new PlayerEventListener(this), this);
 	}
 
 	public void setNeedsUpdate(boolean needsUpdate) {
@@ -203,7 +188,7 @@ public class MineResetLite extends JavaPlugin {
 
 	/**
 	 *
-	 * @param in
+	 * @param in Mine name
 	 * @return
 	 */
 	public Mine[] matchMines(String in) {
@@ -323,8 +308,8 @@ public class MineResetLite extends JavaPlugin {
 	 * <p>
 	 * <code>broadcastNearby()</code> - broadcasts to player near the mine.
 	 * <code>broadcastInWorldOnly()</code> - broadcasts only in the world.
-	 * @param message message to broadcast
-	 * @param mine mine that's reset
+	 * @param message 	message to broadcast
+	 * @param mine 		mine that's reset
 	 */
 	public static void broadcast(String message, Mine mine) {
 		if (Config.getBroadcastNearbyOnly()) {
@@ -338,8 +323,8 @@ public class MineResetLite extends JavaPlugin {
 
 	/**
 	 * Broadcast a reset message only to players near the mine
-	 * @param message message to broadcast
-	 * @param mine mine that's reset
+	 * @param message 	message to broadcast
+	 * @param mine 		mine that's reset
 	 */
 	private static void broadcastNearby(String message, @NotNull Mine mine){
 		for (Player p : mine.getWorld().getPlayers()) {
@@ -352,8 +337,8 @@ public class MineResetLite extends JavaPlugin {
 
 	/**
 	 * Broadcast a reset message only in the world
-	 * @param message message to broadcast
-	 * @param mine mine that's reset
+	 * @param message 	message to broadcast
+	 * @param mine 		mine that's reset
 	 */
 	private static void broadcastInWorldOnly(String message, @NotNull Mine mine){
 		for (Player p : mine.getWorld().getPlayers()) {
@@ -370,10 +355,7 @@ public class MineResetLite extends JavaPlugin {
 		mines.remove(mine);
 		getMineFile(mine).delete();
 	}
-	
-	public boolean hasWorldEdit() {
-		return worldEdit != null;
-	}
+
 	
 	public WorldEditPlugin getWorldEdit() {
 		return worldEdit;
