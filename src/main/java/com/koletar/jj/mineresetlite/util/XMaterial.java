@@ -904,12 +904,10 @@ public enum XMaterial {
         }
         return new ItemStack(mat,1,(byte) data);
     }
+
     public static boolean isNewVersion(){
         Material mat = Material.getMaterial("RED_WOOL");
-        if(mat != null){
-            return true;
-        }
-        return false;
+        return mat != null;
     }
 
 
@@ -938,9 +936,7 @@ public enum XMaterial {
         }
         XMaterial xmat = fromMaterial(comp.getType());
         if(isDamageable(xmat)){
-            if(this.parseMaterial() == comp.getType()){
-                return true;
-            }
+            return this.parseMaterial() == comp.getType();
         }
         return false;
     }

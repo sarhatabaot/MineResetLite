@@ -1,6 +1,7 @@
 package com.koletar.jj.mineresetlite.util;
 
 //import com.vk2gpz.vklib.mc.material.MaterialUtil;
+
 import com.koletar.jj.mineresetlite.mine.Mine;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -21,7 +22,8 @@ public class Phrases {
     private ResourceBundle phrases;
     private Properties overrides;
 
-    private Phrases() {}
+    private Phrases() {
+    }
 
     public static Phrases getInstance() {
         if (instance == null) {
@@ -69,8 +71,6 @@ public class Phrases {
             return ((Player) o).getName();
         } else if (o instanceof World) {
             return ((World) o).getName();
-        } else if (o instanceof SerializableBlock) {
-            return Material.getMaterial("" + ((SerializableBlock) o).getBlockId()).toString() + (((SerializableBlock) o).getData() != 0 ? ":" + ((SerializableBlock) o).getData() : "");
         } else if (o instanceof ConsoleCommandSender) {
             return phrase("console");
         } else if (o instanceof BlockCommandSender) {

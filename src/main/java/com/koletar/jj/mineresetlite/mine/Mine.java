@@ -298,32 +298,66 @@ public class Mine implements ConfigurationSerializable {
         return isInside(p.getLocation());
     }
 
-    public boolean isInside(Location l) {
-        return l.getWorld().equals(world)
-                && (l.getBlockX() >= minPos.getX() && l.getBlockX() <= maxPos.getX())
-                && (l.getBlockY() >= minPos.getY() && l.getBlockY() <= maxPos.getY())
-                && (l.getBlockZ() >= minPos.getZ() && l.getBlockZ() <= maxPos.getZ());
+    public boolean isInside(Location location) {
+        return location.getWorld().equals(world) && inRange(location);
     }
 
-    public void setTp(Location l) {
-        this.teleportPosition = new TeleportPosition(l.getBlockX(),
-                l.getBlockY(),
-                l.getBlockZ(),
-                (int) l.getPitch(),
-                (int) l.getYaw());
+    private boolean inRange(Location location){
+        return inRangeX(location.getBlockX()) && inRangeY(location.getBlockY()) && inRangeZ(location.getBlockZ());
+    }
+    private boolean inRangeX(int x){
+        return (x >= minPos.getX() && x <= maxPos.getX());
+    }
+    private boolean inRangeY(int y){
+        return (y >= minPos.getY() && y <= maxPos.getY());
+    }
+    private boolean inRangeZ(int z){
+        return (z >= minPos.getZ() && z <= maxPos.getZ());
     }
 
-    private Location getTp() {
-        return new Location(getWorld(),
-                teleportPosition.getX(),
-                teleportPosition.getY(),
-                teleportPosition.getZ(),
-                teleportPosition.getYaw(),
-                teleportPosition.getPitch());
+    public void setTp(Location location) {
+        this.teleportPosition = new TeleportPosition(location);
+    }
+
+    private Location getLocationTp() {
+        return teleportPosition.toLocation(world);
+    }
+
+    public void teleport(Player player) {
+        Location location;
+
+        if (!getLocationTp().equals(new Location(world, 0, -Integer.MAX_VALUE, 0))) {
+            location = getLocationTp();
+        } else {
+            Location max = maxPos.toLocation(world);
+            Location min = minPos.toLocation(world);
+
+            /*
+            Location max = new Location(world,
+                    Math.max(this.maxPos.getX(), this.minPos.getX()), this.maxPos.getY(), Math.max(this.maxPos.getZ(), this.minPos.getZ()));
+            Location min = new Location(world,
+                    Math.min(this.maxPos.getX(), this.minPos.getX()), this.minPos.getY(), Math.min(this.maxPos.getZ(), this.minPos.getZ()));*/
+
+            location = max.add(min).multiply(0.5);
+            Block block = location.getBlock();
+
+            if (isUnSafe(block)) {
+                location = generateSafeLocation(location);
+            }
+        }
+
+        player.teleport(location);
+    }
+    private Location generateSafeLocation(Location location){
+        return new Location(world,location.getX(), location.getWorld().getHighestBlockYAt(location.getBlockX(), location.getBlockZ()), location.getZ());
+    }
+
+    private boolean isUnSafe(Block block){
+        return block.getType() != Material.AIR || block.getRelative(BlockFace.UP).getType() != Material.AIR;
     }
 
     /**
-     * @param playerLocation
+     * @param playerLocation The players location
      * @return location - the safe location.
      */
     @NotNull
@@ -332,11 +366,8 @@ public class Mine implements ConfigurationSerializable {
         Block block = location.getBlock();
 
         // check to make sure we don't suffocate player
-        if (block.getType() != Material.AIR || block.getRelative(BlockFace.UP).getType() != Material.AIR) {
-            location = new Location(world, playerLocation.getX(),
-                    playerLocation.getWorld().getHighestBlockYAt(playerLocation.getBlockX(),
-                            playerLocation.getBlockZ()),
-                    playerLocation.getZ());
+        if (isUnSafe(block)) {
+            location = generateSafeLocation(location);
         }
         return location;
     }
@@ -348,8 +379,8 @@ public class Mine implements ConfigurationSerializable {
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
             Location playerLocation = player.getLocation();
             if (isInside(player)) {
-                if (teleportPosition.getY() > -Integer.MAX_VALUE) {
-                    player.teleport(getTp());
+                if (teleportPosition!=null) {
+                    player.teleport(getLocationTp());
                 } else {
                     Location safeLocation = getSafeLocation(playerLocation);
                     player.teleport(safeLocation);
@@ -454,35 +485,7 @@ public class Mine implements ConfigurationSerializable {
         return probabilityMap;
     }
 
-    public void teleport(Player player) {
-        Location location;
 
-        if (!getTp().equals(new Location(world, 0, -Integer.MAX_VALUE, 0))) {
-            location = getTp();
-        } else {
-            Location max = new Location(world,
-                    Math.max(this.maxPos.getX(), this.minPos.getX()), this.maxPos.getY(), Math.max(this.maxPos.getZ(), this.minPos.getZ()));
-            Location min = new Location(world,
-                    Math.min(this.maxPos.getX(), this.minPos.getX()), this.minPos.getY(), Math.min(this.maxPos.getZ(), this.minPos.getZ()));
-
-            location = max.add(min).multiply(0.5);
-            Block block = location.getBlock();
-
-            if (block.getType() != Material.AIR || block.getRelative(BlockFace.UP).getType() != Material.AIR) {
-                location = new Location(world, location.getX(), location.getWorld().getHighestBlockYAt(location.getBlockX(), location.getBlockZ()), location.getZ());
-            }
-        }
-
-        player.teleport(location);
-    }
-
-    public boolean isXMaterial(XMaterial xMaterial){
-        for(Map.Entry<XMaterial, Double> entry : composition.entrySet()){
-            if(entry.getKey().equals(xMaterial))
-                return true;
-        }
-        return false;
-    }
 
     private void setMaxCount() {
         int dx = maxPos.getX() - minPos.getX() + 1;

@@ -1,5 +1,8 @@
 package com.koletar.jj.mineresetlite.mine;
 
+import org.bukkit.Location;
+import org.bukkit.World;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,11 +15,19 @@ public class TeleportPosition extends Position {
         this.pitch = 0;
         this.yaw = 0;
     }
+
     public TeleportPosition(int x, int y, int z, int pitch, int yaw){
         super(x,y,z);
         this.pitch = pitch;
         this.yaw = yaw;
     }
+
+    public TeleportPosition(Location location){
+        super(location);
+        this.pitch = Math.round(location.getPitch());
+        this.yaw = Math.round(location.getYaw());
+    }
+
     public static TeleportPosition deserialize(Map<String, Object> map){
         int x = (Integer) map.get("x");
         int y = (Integer) map.get("y");
@@ -29,6 +40,10 @@ public class TeleportPosition extends Position {
         super(map);
         this.pitch = (Integer) map.get("pitch");
         this.yaw = (Integer) map.get("yaw");
+    }
+
+    public Location toLocation(World world){
+        return new Location(world,this.getX(),this.getY(),this.getZ(),this.yaw,this.pitch);
     }
 
     @Override

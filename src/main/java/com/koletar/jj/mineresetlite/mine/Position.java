@@ -1,5 +1,7 @@
 package com.koletar.jj.mineresetlite.mine;
 
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 
@@ -21,6 +23,12 @@ public class Position implements ConfigurationSerializable {
         this.z = z;
     }
 
+    public Position(Location location){
+        this.x = location.getBlockX();
+        this.y = location.getBlockY();
+        this.z = location.getBlockZ();
+    }
+
     public static Position deserialize(Map<String,Object> map){
         int x = (Integer) map.get("x");
         int y = (Integer) map.get("y");
@@ -32,6 +40,10 @@ public class Position implements ConfigurationSerializable {
         this.x = (Integer) map.get("x");
         this.y = (Integer) map.get("y");
         this.z = (Integer) map.get("z");
+    }
+
+    public Location toLocation(World world){
+        return new Location(world,x,y,z);
     }
 
     @Override

@@ -29,8 +29,7 @@ public class MinePlaceholders extends PlaceholderExpansion {
     /* %identifier_mine_argument% */
     @Override
     public String onPlaceholderRequest(Player p, String args) {
-        args = args.toLowerCase();
-        String[] bits = args.split("_");
+        String[] bits = args.toLowerCase().split("_");
         String value = bits[1];
         Mine[] mines = mrl.matchMines(bits[0]);
         String strPlaceholder="";
@@ -63,6 +62,7 @@ public class MinePlaceholders extends PlaceholderExpansion {
                 strPlaceholder = String.valueOf((mines[0].getBrokenBlocks()/mines[0].getMaxCount())*100);
                 break;
             }
+            default: break;
         }
         return strPlaceholder;
     }
