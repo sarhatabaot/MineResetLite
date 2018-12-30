@@ -291,7 +291,7 @@ public class MineCommands {
         }
 
         String strBlock = args[args.length - 2];
-        XMaterial material = XMaterial.fromString(strBlock);
+        XMaterial material = XMaterial.fromString(strBlock.toUpperCase());
         if(material==null){
             return;
         }
@@ -300,15 +300,9 @@ public class MineCommands {
             return;
         }
 
-        String percentageS = args[args.length - 1];
-
-        StringBuilder psb = new StringBuilder(percentageS);
-        if (percentageS.endsWith("%")) {
-            psb.deleteCharAt(psb.length() - 1); //deletes the '%' should be stripped out only if it exists
-        }
         double percentage;
         try {
-            percentage = Double.valueOf(psb.toString());
+            percentage = Double.valueOf(getPercentage(args));
         } catch (NumberFormatException nfe) {
             sender.sendMessage(phrase("badPercentage"));
             return;
@@ -339,6 +333,15 @@ public class MineCommands {
         mines[0].getComposition().put(material, percentage);
         sender.sendMessage(phrase("mineCompositionSet", mines[0], percentage * 100, material, (1 - mines[0].getCompositionTotal()) * 100));
         plugin.buffSave();
+    }
+
+    private String getPercentage(String[] args){
+        String percentageS = args[args.length - 1];
+        StringBuilder psb = new StringBuilder(percentageS);
+        if (percentageS.endsWith("%")) {
+            psb.deleteCharAt(psb.length() - 1);
+        }
+        return psb.toString();
     }
 
     @Command(aliases = {"unset", "remove", "-"},

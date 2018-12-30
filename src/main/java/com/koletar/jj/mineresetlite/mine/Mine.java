@@ -404,16 +404,7 @@ public class Mine implements ConfigurationSerializable {
                 for (int z = minPos.getZ(); z <= maxPos.getZ(); ++z) {
                     if (!fillMode || world.getBlockAt(x, y, z).getType() == Material.AIR) {
                         setSurfaceBlocks(x,y,z);
-                        // generate random block
-                        double r = rand.nextDouble();
-                        for (Map.Entry<XMaterial, Double> entry : probabilityMap.entrySet()) {
-                            if (r <= entry.getValue()) {
-                                Block b = world.getBlockAt(x, y, z);
-                                b.setType(entry.getKey().parseMaterial());
-                                b.setData((byte)XMaterial.fromString(entry.getKey().toString()).getData());
-                                break;
-                            }
-                        }
+                        generateRandomBlock(rand,probabilityMap,x,y,z);
                     }
                 }
             }
@@ -421,6 +412,17 @@ public class Mine implements ConfigurationSerializable {
 		this.currentBroken = 0;
     }
 
+    private void generateRandomBlock(Random random, Map<XMaterial,Double> probabilityMap, int x,int y,int z){
+        double r = random.nextDouble();
+        for (Map.Entry<XMaterial, Double> entry : probabilityMap.entrySet()) {
+            if (r <= entry.getValue()) {
+                Block b = world.getBlockAt(x, y, z);
+                b.setType(entry.getKey().parseMaterial());
+                b.setData((byte)XMaterial.fromString(entry.getKey().toString()).getData());
+                break;
+            }
+        }
+    }
     /**
      * Sets the surface blocks, if surface is set.
      * @param x     x
