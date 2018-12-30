@@ -36,7 +36,7 @@ public class Mine implements ConfigurationSerializable {
     private Position minPos;
     private Position maxPos;
 
-    private Material surface;
+    private XMaterial surface;
     private Map<XMaterial, Double> composition;
 
     private boolean fillMode;
@@ -114,7 +114,7 @@ public class Mine implements ConfigurationSerializable {
             }
         }
         if (me.containsKey("surface") && !me.get("surface").equals("")) {
-            surface = XMaterial.fromString((String) me.get("surface")).parseMaterial();
+            surface = XMaterial.fromString((String) me.get("surface"));
         }
         if (me.containsKey("fillMode")) {
             fillMode = (Boolean) me.get("fillMode");
@@ -258,11 +258,11 @@ public class Mine implements ConfigurationSerializable {
         return resetClock;
     }
 
-    public Material getSurface() {
+    public XMaterial getSurface() {
         return surface;
     }
 
-    public void setSurface(Material surface) {
+    public void setSurface(XMaterial surface) {
         this.surface = surface;
     }
 
@@ -372,19 +372,14 @@ public class Mine implements ConfigurationSerializable {
             for (int y = minPos.getY(); y <= maxPos.getY(); ++y) {
                 for (int z = minPos.getZ(); z <= maxPos.getZ(); ++z) {
                     if (!fillMode || world.getBlockAt(x, y, z).getType() == Material.AIR) {
-                        // set surface
-                        if (y == maxPos.getY() && surface != null) {
-                            Block block = world.getBlockAt(x, y, z);
-                            block.setType(surface);
-                            continue;
-                        }
+                        setSurfaceBlocks(x,y,z);
                         // generate random block
                         double r = rand.nextDouble();
                         for (Map.Entry<XMaterial, Double> entry : probabilityMap.entrySet()) {
                             if (r <= entry.getValue()) {
                                 Block b = world.getBlockAt(x, y, z);
                                 b.setType(entry.getKey().parseMaterial());
-                                b.setData((byte)entry.getKey().getData());
+                                b.setData((byte)XMaterial.fromString(entry.getKey().toString()).getData());
                                 break;
                             }
                         }
@@ -393,6 +388,20 @@ public class Mine implements ConfigurationSerializable {
             }
         }
 		this.currentBroken = 0;
+    }
+
+    /**
+     * Sets the surface blocks, if surface is set.
+     * @param x     x
+     * @param y     y
+     * @param z     z
+     */
+    private void setSurfaceBlocks(int x,int y, int z){
+        if(y== maxPos.getY()&& surface !=null){
+            Block block = world.getBlockAt(x,y,z);
+            block.setType(surface.parseMaterial());
+            block.setData((byte)surface.getData());
+        }
     }
 
     public void cron() {
@@ -465,6 +474,14 @@ public class Mine implements ConfigurationSerializable {
         }
 
         player.teleport(location);
+    }
+
+    public boolean isXMaterial(XMaterial xMaterial){
+        for(Map.Entry<XMaterial, Double> entry : composition.entrySet()){
+            if(entry.getKey().equals(xMaterial))
+                return true;
+        }
+        return false;
     }
 
     private void setMaxCount() {
