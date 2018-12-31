@@ -5,6 +5,7 @@ import com.koletar.jj.mineresetlite.command.commands.MineCommands;
 import com.koletar.jj.mineresetlite.command.commands.PluginCommands;
 import com.koletar.jj.mineresetlite.listeners.BrokenBlockEventListener;
 import com.koletar.jj.mineresetlite.listeners.PlayerEventListener;
+import com.koletar.jj.mineresetlite.mine.Composition;
 import com.koletar.jj.mineresetlite.mine.Mine;
 import com.koletar.jj.mineresetlite.mine.Position;
 import com.koletar.jj.mineresetlite.mine.TeleportPosition;
@@ -20,6 +21,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
@@ -73,6 +75,7 @@ public class MineResetLite extends JavaPlugin {
 		ConfigurationSerialization.registerClass(Mine.class);
 		ConfigurationSerialization.registerClass(Position.class);
 		ConfigurationSerialization.registerClass(TeleportPosition.class);
+		ConfigurationSerialization.registerClass(Composition.class);
 
 		logger = getLogger();
 		if (!setupConfig()) {

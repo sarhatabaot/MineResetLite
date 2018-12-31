@@ -37,7 +37,8 @@ public class Mine implements ConfigurationSerializable {
     private Position maxPos;
 
     private XMaterial surface;
-    private Map<XMaterial, Double> composition;
+    private Composition composition;
+    //private Map<XMaterial, Double> composition;
 
     private boolean fillMode;
 
@@ -64,7 +65,7 @@ public class Mine implements ConfigurationSerializable {
         this.name = name;
         this.world = world;
 
-        composition = new HashMap<>();
+        composition = new Composition();
         resetWarnings = new LinkedList<>();
         setMaxCount();
     }
@@ -95,11 +96,12 @@ public class Mine implements ConfigurationSerializable {
             throw new IllegalArgumentException("World was null!");
         }
         try {
-            Map<String, Double> sComposition = (Map<String, Double>) me.get("composition");
+            this.composition = Composition.deserialize((Map<String,Object>) me.get("composition"));
+            /*Map<String, Double> sComposition = (Map<String, Double>) me.get("composition");
             this.composition = new HashMap<>();
             for (Map.Entry<String, Double> entry : sComposition.entrySet()) {
                 this.composition.put(XMaterial.fromString(entry.getKey()), entry.getValue());
-            }
+            }*/
         } catch (Throwable t) {
             throw new IllegalArgumentException("Error deserializing composition");
         }
@@ -192,11 +194,11 @@ public class Mine implements ConfigurationSerializable {
             me.put("surface", "");
         }
         //Make string form of composition
-        Map<String, Double> sComposition = new HashMap<>();
+        /*Map<String, Double> sComposition = new HashMap<>();
         for (Map.Entry<XMaterial, Double> entry : this.composition.entrySet()) {
             sComposition.put(entry.getKey().toString(), entry.getValue());
-        }
-        me.put("composition", sComposition);
+        }*/
+        me.put("composition", this.composition.serialize());
 
         me.put("fillMode", this.fillMode);
 
@@ -275,7 +277,7 @@ public class Mine implements ConfigurationSerializable {
         return name;
     }
 
-    public Map<XMaterial, Double> getComposition() {
+    public Composition getComposition() {
         return composition;
     }
 
@@ -288,11 +290,7 @@ public class Mine implements ConfigurationSerializable {
     }
 
     public double getCompositionTotal() {
-        double total = 0;
-        for (Double d : composition.values()) {
-            total += d;
-        }
-        return total;
+        return composition.getTotalPercentage();
     }
 
     public boolean isInside(Player p) {
@@ -394,9 +392,7 @@ public class Mine implements ConfigurationSerializable {
      * Resets the mine using the <code>composition</code>.
      */
     public void reset() {
-        //Get probability map
-        Map<XMaterial, Double> probabilityMap = mapComposition(composition);
-        //Pull players out
+        Map<XMaterial, Double> probabilityMap = composition.getProbability();
         teleportPlayers();
         //Actually reset
         Random rand = new Random();

@@ -1,18 +1,17 @@
 package com.koletar.jj.mineresetlite.mine;
 
 import com.koletar.jj.mineresetlite.util.XMaterial;
-import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Composition implements ConfigurationSerializable {
-    private Map<XMaterial,Double> composition;
+    private Map<XMaterial,Double> compositionMap;
     private double totalPercentage;
 
     public Composition(){
-        this.composition = new HashMap<>();
+        this.compositionMap = new HashMap<>();
     }
 
     public static Composition deserialize(Map<String,Object> me){
@@ -25,19 +24,29 @@ public class Composition implements ConfigurationSerializable {
     }
 
     public Composition(Map<XMaterial, Double> composition) {
-        this.composition = composition;
+        this.compositionMap = composition;
     }
 
     public Map<XMaterial,Double> getProbability(){
-        Map<XMaterial,Double> paddedComposition = new HashMap<>(this.composition);
+        Map<XMaterial,Double> paddedComposition = new HashMap<>(this.compositionMap);
         this.totalPercentage = calcPercentage();
         padComposition(paddedComposition);
         return generateProbabilityMap(paddedComposition);
     }
 
+    public Map<XMaterial, Double> getMap() {
+        return compositionMap;
+    }
+
+    public double getTotalPercentage() {
+        if(totalPercentage != 0)
+            return totalPercentage;
+        return totalPercentage = calcPercentage();
+    }
+
     private double calcPercentage(){
         double percentage = 0;
-        for(Map.Entry<XMaterial,Double> entry: composition.entrySet()){
+        for(Map.Entry<XMaterial,Double> entry: compositionMap.entrySet()){
             percentage += entry.getValue();
         }
         return percentage;
@@ -60,12 +69,20 @@ public class Composition implements ConfigurationSerializable {
         return probability;
     }
 
-    private Map<String,Double> parseString(){
+    public Map<String,Double> parseString(){
         Map<String,Double> stringDoubleMap = new HashMap<>();
-        for (Map.Entry<XMaterial,Double> entry : this.composition.entrySet()){
+        for (Map.Entry<XMaterial,Double> entry : this.compositionMap.entrySet()){
             stringDoubleMap.put(entry.getKey().toString(),entry.getValue());
         }
         return stringDoubleMap;
+    }
+
+    public boolean isMaterial(XMaterial material){
+        for (Map.Entry<XMaterial,Double> entry: compositionMap.entrySet()){
+            if(entry.getKey().equals(material))
+                return true;
+        }
+        return false;
     }
 
     @Override

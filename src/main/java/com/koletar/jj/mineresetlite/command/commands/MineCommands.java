@@ -214,7 +214,7 @@ public class MineCommands {
 
         //Build composition list
         StringBuilder csb = new StringBuilder();
-        for (Map.Entry<XMaterial, Double> entry : mines[0].getComposition().entrySet()) {
+        for (Map.Entry<XMaterial, Double> entry : mines[0].getComposition().getMap().entrySet()) {
             csb.append(entry.getValue() * 100);
             csb.append("% ");
             csb.append(XMaterial.fromString("" + entry.getKey()).toString());
@@ -313,25 +313,26 @@ public class MineCommands {
         }
         percentage = percentage / 100; //Make it a programmatic percentage
 
-        Double oldPercentage = mines[0].getComposition().get(material);
-        double total = 0;
-        for (Map.Entry<XMaterial, Double> entry : mines[0].getComposition().entrySet()) {
+        Double oldPercentage = mines[0].getComposition().getMap().get(material);
+        /*double total = 0;
+        for (Map.Entry<XMaterial, Double> entry : mines[0].getComposition().getMap().entrySet()) {
             if (!entry.getKey().equals(material)) {
                 total += entry.getValue();
             }
-        }
+        }*/
+        double total = mines[0].getComposition().getTotalPercentage();
         total += percentage;
         if (total > 1) {
             sender.sendMessage(phrase("insaneCompositionChange"));
             if (oldPercentage == null) {
-                mines[0].getComposition().remove(material);
+                mines[0].getComposition().getMap().remove(material);
             } else {
-                mines[0].getComposition().put(material, oldPercentage);
+                mines[0].getComposition().getMap().put(material, oldPercentage);
             }
             return;
         }
-        mines[0].getComposition().put(material, percentage);
-        sender.sendMessage(phrase("mineCompositionSet", mines[0], percentage * 100, material, (1 - mines[0].getCompositionTotal()) * 100));
+        mines[0].getComposition().getMap().put(material, percentage);
+        sender.sendMessage(phrase("mineCompositionSet", mines[0], percentage * 100, material, (1 - mines[0].getComposition().getTotalPercentage()) * 100));
         plugin.buffSave();
     }
 
@@ -364,13 +365,19 @@ public class MineCommands {
         }
 
         //Does the mine contain this block?
-		for (Map.Entry<XMaterial, Double> entry : mines[0].getComposition().entrySet()) {
+        if(mines[0].getComposition().isMaterial(material)){
+            mines[0].getComposition().getMap().remove(material);
+            sender.sendMessage(phrase("blockRemovedFromMine",mines[0],material,(1 - mines[0].getCompositionTotal()) * 100));
+            return;
+        }
+        /*
+		for (Map.Entry<XMaterial, Double> entry : mines[0].getComposition().getMap().entrySet()) {
 			if (entry.getKey().equals(material)) {
-				mines[0].getComposition().remove(entry.getKey());
+				mines[0].getComposition().getMap().remove(entry.getKey());
 				sender.sendMessage(phrase("blockRemovedFromMine", mines[0], material, (1 - mines[0].getCompositionTotal()) * 100));
 				return;
 			}
-		}
+		}*/
         sender.sendMessage(phrase("blockNotInMine", mines[0], material));
 
         plugin.buffSave();
