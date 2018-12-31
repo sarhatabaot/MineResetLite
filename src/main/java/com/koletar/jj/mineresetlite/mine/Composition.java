@@ -39,12 +39,10 @@ public class Composition implements ConfigurationSerializable {
     }
 
     public double getTotalPercentage() {
-        if(totalPercentage != 0)
-            return totalPercentage;
         return totalPercentage = calcPercentage();
     }
 
-    private double calcPercentage(){
+    public double calcPercentage(){
         double percentage = 0;
         for(Map.Entry<XMaterial,Double> entry: compositionMap.entrySet()){
             percentage += entry.getValue();

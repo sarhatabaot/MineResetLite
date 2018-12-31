@@ -332,7 +332,7 @@ public class MineCommands {
             return;
         }
         mines[0].getComposition().getMap().put(material, percentage);
-        sender.sendMessage(phrase("mineCompositionSet", mines[0], percentage * 100, material, (1 - mines[0].getComposition().getTotalPercentage()) * 100));
+        sender.sendMessage(phrase("mineCompositionSet", mines[0], percentage * 100, material, (1 - mines[0].getComposition().calcPercentage()) * 100));
         plugin.buffSave();
     }
 
@@ -367,7 +367,7 @@ public class MineCommands {
         //Does the mine contain this block?
         if(mines[0].getComposition().isMaterial(material)){
             mines[0].getComposition().getMap().remove(material);
-            sender.sendMessage(phrase("blockRemovedFromMine",mines[0],material,(1 - mines[0].getCompositionTotal()) * 100));
+            sender.sendMessage(phrase("blockRemovedFromMine",mines[0],material,(1 - mines[0].getComposition().calcPercentage()) * 100));
             return;
         }
         /*
