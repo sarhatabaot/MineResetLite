@@ -51,6 +51,7 @@ public class Mine implements ConfigurationSerializable {
     private TeleportPosition teleportPosition;
 
     // from MineResetLitePlus
+    // should be broken off into its own class.
     private double resetPercent = -1.0;
     private transient int maxCount = 0;
     private transient int currentBroken = 0;
@@ -465,7 +466,6 @@ public class Mine implements ConfigurationSerializable {
      */
     private static Map<XMaterial, Double> mapComposition(Map<XMaterial, Double> compositionIn) {
         HashMap<XMaterial, Double> probabilityMap = new HashMap<>();
-        //ArrayList<CompositionEntry> probabilityMap = new ArrayList<>();
         Map<XMaterial, Double> composition = new HashMap<>(compositionIn);
         //gets total percentage in composition
         double max = 0;
