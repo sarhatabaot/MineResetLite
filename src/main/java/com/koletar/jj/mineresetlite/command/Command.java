@@ -29,7 +29,7 @@ public @interface Command {
     String description();
 
     /**
-     * @return Multilined help text describing the command in full
+     * @return Multi-lined help text describing the command in full
      */
     String[] help() default {};
 
