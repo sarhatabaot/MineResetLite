@@ -29,8 +29,8 @@ public class Composition implements ConfigurationSerializable {
     }
 
     public Map<XMaterial,Double> getProbability(){
-        Map<XMaterial,Double> paddedComposition = padComposition();
         this.totalPercentage = calcPercentage();
+        Map<XMaterial,Double> paddedComposition = padComposition();
         //padComposition(paddedComposition);
         return generateProbabilityMap(paddedComposition);
     }
@@ -54,7 +54,7 @@ public class Composition implements ConfigurationSerializable {
     /* Issue : Composition */
     private Map<XMaterial,Double> padComposition(){
         Map<XMaterial,Double> composition = new HashMap<>(this.compositionMap);
-        double airPercentage = 1 - calcPercentage();
+        double airPercentage = 1 - totalPercentage;
         if(totalPercentage < 1){
             composition.put(XMaterial.AIR, airPercentage);
             Bukkit.getLogger().info(XMaterial.AIR.toString()+":"+airPercentage);
