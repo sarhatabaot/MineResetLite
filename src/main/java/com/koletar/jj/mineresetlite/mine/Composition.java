@@ -1,6 +1,7 @@
 package com.koletar.jj.mineresetlite.mine;
 
 import com.koletar.jj.mineresetlite.util.XMaterial;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import java.util.HashMap;
@@ -28,9 +29,9 @@ public class Composition implements ConfigurationSerializable {
     }
 
     public Map<XMaterial,Double> getProbability(){
-        Map<XMaterial,Double> paddedComposition = new HashMap<>(this.compositionMap);
+        Map<XMaterial,Double> paddedComposition = padComposition();
         this.totalPercentage = calcPercentage();
-        padComposition(paddedComposition);
+        //padComposition(paddedComposition);
         return generateProbabilityMap(paddedComposition);
     }
 
@@ -39,7 +40,7 @@ public class Composition implements ConfigurationSerializable {
     }
 
     public double getTotalPercentage() {
-        return totalPercentage = calcPercentage();
+        return totalPercentage;
     }
 
     public double calcPercentage(){
@@ -50,11 +51,16 @@ public class Composition implements ConfigurationSerializable {
         return percentage;
     }
 
-    private void padComposition(Map<XMaterial,Double> composition){
-        if(this.totalPercentage < 1){
-            composition.put(XMaterial.AIR, 1 - this.totalPercentage);
+    /* Issue : Composition */
+    private Map<XMaterial,Double> padComposition(){
+        Map<XMaterial,Double> composition = new HashMap<>(this.compositionMap);
+        double airPercentage = 1 - calcPercentage();
+        if(totalPercentage < 1){
+            composition.put(XMaterial.AIR, airPercentage);
+            Bukkit.getLogger().info(XMaterial.AIR.toString()+":"+airPercentage);
             this.totalPercentage = 1;
         }
+        return composition;
     }
 
     private Map<XMaterial,Double> generateProbabilityMap(Map<XMaterial,Double> paddedComposition){
