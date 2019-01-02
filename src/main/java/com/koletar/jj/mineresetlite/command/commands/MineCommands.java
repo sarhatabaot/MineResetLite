@@ -215,7 +215,7 @@ public class MineCommands {
         //Build composition list
         StringBuilder csb = new StringBuilder();
         for (Map.Entry<XMaterial, Double> entry : mines[0].getComposition().getMap().entrySet()) {
-            csb.append(String.format("%.2f",entry.getValue() * 100));
+            csb.append(entry.getValue() * 100);
             csb.append("% ");
             csb.append(XMaterial.fromString("" + entry.getKey()).toString());
 			/*
