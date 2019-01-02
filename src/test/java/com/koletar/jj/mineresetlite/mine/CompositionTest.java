@@ -68,13 +68,13 @@ class CompositionTest {
 
     @Test
     public void add() {
-        TEST_COMPOSITION.add(XMaterial.GOLD_ORE,5);
+        TEST_COMPOSITION.set(XMaterial.GOLD_ORE,5);
         assertEquals(TEST_ADD_COMPOSITION_MAP,TEST_COMPOSITION.getMap());
     }
 
     @Test
     public void remove() {
-        TEST_COMPOSITION.add(XMaterial.GOLD_ORE,5);
+        TEST_COMPOSITION.set(XMaterial.GOLD_ORE,5);
         TEST_COMPOSITION.remove(XMaterial.GOLD_ORE);
         assertEquals(TEST_COMPOSITION_MAP,TEST_COMPOSITION.getMap());
     }

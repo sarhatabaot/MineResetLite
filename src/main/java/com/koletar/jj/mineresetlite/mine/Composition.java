@@ -35,7 +35,7 @@ public class Composition implements ConfigurationSerializable {
         return padComposition();
     }
 
-    public void add(XMaterial material, double percent){
+    public void set(XMaterial material, double percent){
         this.compositionMap.put(material,percent);
     }
 
@@ -58,6 +58,18 @@ public class Composition implements ConfigurationSerializable {
     public double calcPercentage(){
         double percentage = 0;
         for(Map.Entry<XMaterial,Double> entry: compositionMap.entrySet()){
+            percentage += entry.getValue();
+        }
+        return percentage;
+    }
+
+    public double calcPercentage(XMaterial material, double newPercentage){
+        double percentage = 0;
+        for(Map.Entry<XMaterial,Double> entry: compositionMap.entrySet()){
+            if(entry.getKey().equals(material)){
+                percentage += newPercentage;
+                continue;
+            }
             percentage += entry.getValue();
         }
         return percentage;

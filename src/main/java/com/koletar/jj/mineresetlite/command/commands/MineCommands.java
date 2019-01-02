@@ -312,20 +312,23 @@ public class MineCommands {
             return;
         }
         percentage = percentage / 100; //Make it a programmatic percentage
-
-        Double oldPercentage = mines[0].getComposition().getMap().get(material);
         double total = mines[0].getComposition().getTotalPercentage();
-        total += percentage;
+        if(!mines[0].getComposition().isMaterial(material)){
+            total += percentage;
+        } else {
+            total = mines[0].getComposition().calcPercentage(material,percentage);
+        }
+        Double oldPercentage = mines[0].getComposition().getMap().get(material);
         if (total > 1) {
             sender.sendMessage(phrase("insaneCompositionChange"));
             if (oldPercentage == null) {
                 mines[0].getComposition().remove(material);
             } else {
-                mines[0].getComposition().add(material, oldPercentage);
+                mines[0].getComposition().set(material, oldPercentage);
             }
             return;
         }
-        mines[0].getComposition().getMap().put(material, percentage);
+        mines[0].getComposition().set(material, percentage);
         sender.sendMessage(phrase("mineCompositionSet", mines[0], percentage * 100, material, (1 - mines[0].getComposition().calcPercentage()) * 100));
         plugin.buffSave();
     }
@@ -692,7 +695,7 @@ public class MineCommands {
 
     @Command(aliases = {"addpotion", "addpot"},
             description = "Adds the specified potion to the mine",
-            help = {"This command will saddthe specified potion to the mine where you're standing.", "Use /mrl removepot <mine name> <potionname> to remove the specified potion effect from the mine."},
+            help = {"This command will add the specified potion to the mine where you're standing.", "Use /mrl removepot <mine name> <potionname> to remove the specified potion effect from the mine."},
             usage = "<mine name> <potionname:amplifier>",
             permissions = {"mineresetlite.mine.addpotion"},
             min = 1, max = -1,
@@ -707,7 +710,7 @@ public class MineCommands {
 
     @Command(aliases = {"removepotion", "removepot"},
             description = "Removes the specified potion from the mine",
-            help = {"This comamnd will remove the specified potion from the mine.", "Use /mrl removepot <potionname> to remove the potion.", "Use /mrl addpot <mine name> <potionname:amplifier> to add the specified potion effect to the mine."},
+            help = {"This comamnd will remove the specified potion from the mine.", "Use /mrl removepot <potionname> to remove the potion.", "Use /mrl addpot <mine name> <potionname:amplifier> to set the specified potion effect to the mine."},
             usage = "<mine name> <potionname>",
             permissions = {"mineresetlite.mine.removepotion"},
             min = 1, max = -1,
