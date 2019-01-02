@@ -13,6 +13,8 @@ class CompositionTest {
     private final Composition TEST_COMPOSITION = new Composition(TEST_COMPOSITION_MAP);
     private final Map<XMaterial, Double> TEST_PROBABILITY = createProbabilityMap();
     private final Map<XMaterial, Double> TEST_ADD_COMPOSITION_MAP = createAddCompositionMap();
+    private final Map<String,Double> TEST_STRING_COMPOSITION_MAP = createStringCompositionMap();
+    private final Map<String,Object> TEST_SERIALIZE_COMPOSITION = createSerializeCompositionMap();
 
     private static Map<XMaterial, Double> createCompositionMap() {
         HashMap<XMaterial, Double> createMap = new HashMap<>();
@@ -36,54 +38,77 @@ class CompositionTest {
         return createMap;
     }
 
+    private static Map<String,Object> createSerializeCompositionMap(){
+        Map<String,Object> createMap = new HashMap<>();
+        createMap.put("blocks",createStringCompositionMap());
+        return createMap;
+    }
+
+    private static Map<String,Double> createStringCompositionMap(){
+        HashMap<String,Double> createMap = new HashMap();
+        createMap.put("COAL_BLOCK",0.15);
+        createMap.put("ANDESITE",0.05);
+        createMap.put("DIRT",0.10);
+        createMap.put("SAND",0.20);
+        createMap.put("STONE",0.25);
+        return createMap;
+    }
+
 
     @Test
-    void deserialize() {
+    public void deserialize() {
+        Composition c1 = Composition.deserialize(TEST_SERIALIZE_COMPOSITION);
+        assertTrue(TEST_COMPOSITION.equals(c1));
     }
 
     @Test
-    void getProbability() {
+    public void getProbability() {
+        assertEquals(TEST_PROBABILITY,TEST_COMPOSITION.getProbability());
     }
 
     @Test
-    void add() {
+    public void add() {
         TEST_COMPOSITION.add(XMaterial.GOLD_ORE,5);
         assertEquals(TEST_ADD_COMPOSITION_MAP,TEST_COMPOSITION.getMap());
     }
 
     @Test
-    void remove() {
+    public void remove() {
         TEST_COMPOSITION.add(XMaterial.GOLD_ORE,5);
         TEST_COMPOSITION.remove(XMaterial.GOLD_ORE);
         assertEquals(TEST_COMPOSITION_MAP,TEST_COMPOSITION.getMap());
     }
 
     @Test
-    void getMap() {
+    public void getMap() {
         assertEquals(TEST_COMPOSITION_MAP,TEST_COMPOSITION.getMap());
     }
 
     @Test
-    void calcPercentage() {
+    public void calcPercentage() {
         assertEquals(0.75, TEST_COMPOSITION.calcPercentage(),0.01);
     }
 
     @Test
-    void getTotalPercentage() {
+    public void getTotalPercentage() {
         TEST_COMPOSITION.setTotalPercentage(TEST_COMPOSITION.calcPercentage());
         assertEquals(0.75, TEST_COMPOSITION.getTotalPercentage(),0.01);
     }
 
 
     @Test
-    void parseString() {
+    public void parseString() {
+        assertEquals(TEST_STRING_COMPOSITION_MAP,TEST_COMPOSITION.parseString());
     }
 
     @Test
-    void isMaterial() {
+    public void isMaterial() {
+        assertTrue(TEST_COMPOSITION.isMaterial(XMaterial.COAL_BLOCK));
+        assertFalse(TEST_COMPOSITION.isMaterial(XMaterial.DARK_OAK_LOG));
     }
 
     @Test
-    void serialize() {
+    public void serialize() {
+        assertEquals(TEST_SERIALIZE_COMPOSITION,TEST_COMPOSITION.serialize());
     }
 }

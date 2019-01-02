@@ -6,6 +6,7 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class Composition implements ConfigurationSerializable {
     private Map<XMaterial,Double> compositionMap;
@@ -69,7 +70,6 @@ public class Composition implements ConfigurationSerializable {
         double airPercentage = 1 - totalPercentage;
         if(totalPercentage < 1){
             composition.put(XMaterial.AIR, airPercentage);
-            Bukkit.getLogger().info(XMaterial.AIR.toString()+":"+airPercentage);
             this.totalPercentage = 1;
         }
         return composition;
@@ -106,5 +106,9 @@ public class Composition implements ConfigurationSerializable {
         Map<String,Object> me = new HashMap<>();
         me.put("blocks", parseString());
         return me;
+    }
+
+    public boolean equals(Composition composition){
+        return this.compositionMap.equals(composition.getMap());
     }
 }

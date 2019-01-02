@@ -17,6 +17,9 @@
         <!-- JDK Version -->
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+
+        <!-- Junit5 Versions -->
+        <juinit.jupiter.version>5.3.2</juinit.jupiter.version>
     </properties>
 
     <repositories>
@@ -71,7 +74,7 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>RELEASE</version>
+            <version>16.0.3</version>
             <scope>compile</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.json/json -->
@@ -83,13 +86,13 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>RELEASE</version>
+            <version>${juinit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>RELEASE</version>
+            <version>${juinit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -118,7 +121,7 @@
                     <dependency>
                         <groupId>org.junit.jupiter</groupId>
                         <artifactId>junit-jupiter-engine</artifactId>
-                        <version>5.3.2</version>
+                        <version>${juinit.jupiter.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
