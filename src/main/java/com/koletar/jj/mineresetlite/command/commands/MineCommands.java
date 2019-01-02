@@ -314,20 +314,14 @@ public class MineCommands {
         percentage = percentage / 100; //Make it a programmatic percentage
 
         Double oldPercentage = mines[0].getComposition().getMap().get(material);
-        /*double total = 0;
-        for (Map.Entry<XMaterial, Double> entry : mines[0].getComposition().getMap().entrySet()) {
-            if (!entry.getKey().equals(material)) {
-                total += entry.getValue();
-            }
-        }*/
         double total = mines[0].getComposition().getTotalPercentage();
         total += percentage;
         if (total > 1) {
             sender.sendMessage(phrase("insaneCompositionChange"));
             if (oldPercentage == null) {
-                mines[0].getComposition().getMap().remove(material);
+                mines[0].getComposition().remove(material);
             } else {
-                mines[0].getComposition().getMap().put(material, oldPercentage);
+                mines[0].getComposition().add(material, oldPercentage);
             }
             return;
         }

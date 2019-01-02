@@ -35,8 +35,20 @@ public class Composition implements ConfigurationSerializable {
         return generateProbabilityMap(paddedComposition);
     }
 
+    public void add(XMaterial material, double percent){
+        this.compositionMap.put(material,percent);
+    }
+
+    public void remove(XMaterial material){
+        this.compositionMap.remove(material);
+    }
+
     public Map<XMaterial, Double> getMap() {
         return compositionMap;
+    }
+
+    public void setTotalPercentage(double totalPercentage) {
+        this.totalPercentage = totalPercentage;
     }
 
     public double getTotalPercentage() {
