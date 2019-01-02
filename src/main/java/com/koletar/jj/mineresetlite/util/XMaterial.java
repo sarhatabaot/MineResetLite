@@ -917,7 +917,7 @@ public enum XMaterial {
         }
         for(XMaterial mat:XMaterial.values()){
             for(String test:mat.m){
-                if(name.toUpperCase().equals(test) && ((byte)mat.data) == data){
+                if(name.equalsIgnoreCase(test) && ((byte)mat.data) == data){
                     cachedSearch.put(test+","+data,mat);
                     return mat;
                 }
