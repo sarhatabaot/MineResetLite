@@ -319,14 +319,7 @@ public class Mine implements ConfigurationSerializable {
         } else {
             Location max = maxPos.toLocation(world);
             Location min = minPos.toLocation(world);
-
-            /*
-            Location max = new Location(world,
-                    Math.max(this.maxPos.getX(), this.minPos.getX()), this.maxPos.getY(), Math.max(this.maxPos.getZ(), this.minPos.getZ()));
-            Location min = new Location(world,
-                    Math.min(this.maxPos.getX(), this.minPos.getX()), this.minPos.getY(), Math.min(this.maxPos.getZ(), this.minPos.getZ()));*/
-
-            location = max.add(min).multiply(0.5);
+            location = max.add(min).multiply(0.5); // why?
             Block block = location.getBlock();
 
             if (isUnSafe(block)) {
@@ -353,7 +346,7 @@ public class Mine implements ConfigurationSerializable {
         Location location = new Location(world, playerLocation.getX(), maxPos.getY() + 1D, playerLocation.getZ());
         Block block = location.getBlock();
 
-        // check to make sure we don't suffocate player
+        // check to make sure we don't suffocate player (TODO: Appears in teleport(Player p) before this is run)
         if (isUnSafe(block)) {
             location = generateSafeLocation(location);
         }

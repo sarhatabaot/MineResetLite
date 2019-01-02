@@ -11,6 +11,7 @@ import java.util.Objects;
 public class Composition implements ConfigurationSerializable {
     private Map<XMaterial,Double> compositionMap;
     private double totalPercentage;
+    //private XMaterial surface; (TODO)
 
     public Composition(){
         this.compositionMap = new HashMap<>();
@@ -31,9 +32,7 @@ public class Composition implements ConfigurationSerializable {
 
     public Map<XMaterial,Double> getProbability(){
         this.totalPercentage = calcPercentage();
-        Map<XMaterial,Double> paddedComposition = padComposition();
-        //padComposition(paddedComposition);
-        return generateProbabilityMap(paddedComposition);
+        return padComposition();
     }
 
     public void add(XMaterial material, double percent){
@@ -73,16 +72,6 @@ public class Composition implements ConfigurationSerializable {
             this.totalPercentage = 1;
         }
         return composition;
-    }
-
-    private Map<XMaterial,Double> generateProbabilityMap(Map<XMaterial,Double> paddedComposition){
-        HashMap<XMaterial,Double> probability = new HashMap<>();
-        double i = 0;
-        for(Map.Entry<XMaterial,Double> entry : paddedComposition.entrySet()){
-            i += entry.getValue() / this.totalPercentage;
-            probability.put(entry.getKey(),i);
-        }
-        return probability;
     }
 
     public Map<String,Double> parseString(){

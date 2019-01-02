@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 
 /**
  * @author jjkoletar
+ * TODO: this whole class
  */
 public class Phrases {
     private static Phrases instance;
@@ -73,6 +74,8 @@ public class Phrases {
             return phrase("console");
         } else if (o instanceof BlockCommandSender) {
             return ((BlockCommandSender) o).getBlock().getType().toString();
+        } else if (o instanceof Double) {
+            return String.format("%.2f", o);
         }
         return o.toString();
     }
