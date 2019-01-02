@@ -7,25 +7,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TeleportPosition extends Position {
-    private int pitch;
     private int yaw;
+    private int pitch;
 
     public TeleportPosition(){
         super();
-        this.pitch = 0;
         this.yaw = 0;
+        this.pitch = 0;
     }
 
-    public TeleportPosition(int x, int y, int z, int pitch, int yaw){
+    public TeleportPosition(int x, int y, int z, int yaw, int pitch){
         super(x,y,z);
-        this.pitch = pitch;
         this.yaw = yaw;
+        this.pitch = pitch;
     }
 
     public TeleportPosition(Location location){
         super(location);
-        this.pitch = Math.round(location.getPitch());
         this.yaw = Math.round(location.getYaw());
+        this.pitch = Math.round(location.getPitch());
     }
 
     public static TeleportPosition deserialize(Map<String, Object> map){
@@ -49,8 +49,8 @@ public class TeleportPosition extends Position {
     @Override
     public Map<String, Object> serialize() {
         HashMap<String,Object> mapSerializer = new HashMap<>(super.serialize());
-        mapSerializer.put("pitch",this.pitch);
         mapSerializer.put("yaw",this.yaw);
+        mapSerializer.put("pitch",this.pitch);
         return mapSerializer;
     }
 
