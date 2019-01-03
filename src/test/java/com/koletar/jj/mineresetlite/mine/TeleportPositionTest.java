@@ -1,5 +1,6 @@
 package com.koletar.jj.mineresetlite.mine;
 
+import com.koletar.jj.mineresetlite.data.MineData;
 import com.koletar.jj.mineresetlite.mine.TeleportPosition;
 import org.bukkit.Location;
 import org.junit.jupiter.api.Test;

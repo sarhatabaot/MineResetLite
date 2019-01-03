@@ -21,7 +21,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
@@ -112,6 +111,7 @@ public class MineResetLite extends JavaPlugin {
 	private void initTasks(){
 		if(Config.getCheckForUpdates()){
 			SimpleUpdateChecker checker = new SimpleUpdateChecker(this);
+			Bukkit.getServer().getScheduler().runTask(this,checker);
 			updateTask = Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(
 					this, checker,20 * 15);
 			logger.info("Check for update done.");
@@ -193,25 +193,14 @@ public class MineResetLite extends JavaPlugin {
 	}
 
 	/**
-	 *
-	 * @param name
+	 * TODO: Why does this return an array? When it's used we always reference the first item.
+	 * @param name Mine name
 	 * @return
 	 */
-	public Material matchMaterial(String name) {
-		Material ret = Material.getMaterial(name.toUpperCase());
-		if(ret==null)
-			ret = Material.matchMaterial(name);
-		return ret;
-	}
-
-	/**
-	 *
-	 * @param in Mine name
-	 * @return
-	 */
-	public Mine[] matchMines(String in) {
-		String strMine = in;
+	public Mine[] matchMines(String name) {
+		String strMine = name;
 		List<Mine> matches = new LinkedList<>();
+		//Why is this wildcard being used here? Test setting a mine with *
 		boolean wildcard = strMine.contains("*");
 		strMine = strMine.replace("*", "").toLowerCase();
 		for (Mine mine : mines) {
@@ -228,17 +217,7 @@ public class MineResetLite extends JavaPlugin {
 		return matches.toArray(new Mine[0]);
 	}
 	
-	public String toString(Mine[] mines) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < mines.length; i++) {
-			if (i > 0) {
-				sb.append(", ");
-			}
-			Mine mine = mines[i];
-			sb.append(mine.getName());
-		}
-		return sb.toString();
-	}
+
 	
 	/**
 	 * Alert the plugin that changes have been made to mines, but wait 60 seconds before we save.

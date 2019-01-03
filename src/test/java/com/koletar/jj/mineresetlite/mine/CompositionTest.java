@@ -1,5 +1,6 @@
 package com.koletar.jj.mineresetlite.mine;
 
+import com.koletar.jj.mineresetlite.data.MineData;
 import com.koletar.jj.mineresetlite.util.XMaterial;
 import org.junit.jupiter.api.Test;
 
@@ -10,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CompositionTest {
     private final Map<XMaterial, Double> TEST_COMPOSITION_MAP = createCompositionMap();
-    private final Composition TEST_COMPOSITION = new Composition(TEST_COMPOSITION_MAP);
+    private final Composition TEST_COMPOSITION = new Composition(TEST_COMPOSITION_MAP,XMaterial.LAPIS_BLOCK);
     private final Map<XMaterial, Double> TEST_PROBABILITY = createProbabilityMap();
     private final Map<XMaterial, Double> TEST_ADD_COMPOSITION_MAP = createAddCompositionMap();
     private final Map<String,Double> TEST_STRING_COMPOSITION_MAP = createStringCompositionMap();
@@ -40,6 +41,7 @@ class CompositionTest {
 
     private static Map<String,Object> createSerializeCompositionMap(){
         Map<String,Object> createMap = new HashMap<>();
+        createMap.put("surface",XMaterial.LAPIS_BLOCK.toString());
         createMap.put("blocks",createStringCompositionMap());
         return createMap;
     }
