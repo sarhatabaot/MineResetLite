@@ -4,6 +4,7 @@ import com.koletar.jj.mineresetlite.util.XMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -11,19 +12,28 @@ import java.util.Objects;
 public class Composition implements ConfigurationSerializable {
     private Map<XMaterial,Double> compositionMap;
     private double totalPercentage;
-    //private XMaterial surface; (TODO)
+    private XMaterial surface;
 
     public Composition(){
         this.compositionMap = new HashMap<>();
     }
 
     public static Composition deserialize(Map<String,Object> me){
+        XMaterial surface = null;
+        if(me.containsKey("surface") && !me.get("surface").equals("")) {
+            surface = XMaterial.fromString((String) me.get("surface"));
+        }
         Map<String,Double> stringDoubleMap = (Map<String, Double>) me.get("blocks");
         Map<XMaterial,Double> comp = new HashMap<>();
         for(Map.Entry<String,Double> entry: stringDoubleMap.entrySet()){
             comp.put(XMaterial.fromString(entry.getKey()),entry.getValue());
         }
-        return new Composition(comp);
+        return new Composition(comp,surface);
+    }
+
+    public Composition(Map<XMaterial, Double> compositionMap, XMaterial surface) {
+        this.compositionMap = compositionMap;
+        this.surface = surface;
     }
 
     public Composition(Map<XMaterial, Double> composition) {
@@ -35,6 +45,19 @@ public class Composition implements ConfigurationSerializable {
         return padComposition();
     }
 
+    public XMaterial getSurface() {
+        return surface;
+    }
+
+    public void setSurface(XMaterial surface) {
+        this.surface = surface;
+    }
+
+    /**
+     * Add/replace material in composition map
+     * @param material  XMaterial material
+     * @param percent   percent
+     */
     public void set(XMaterial material, double percent){
         this.compositionMap.put(material,percent);
     }
@@ -75,10 +98,11 @@ public class Composition implements ConfigurationSerializable {
         return percentage;
     }
 
-    /* Issue : Composition */
     private Map<XMaterial,Double> padComposition(){
         Map<XMaterial,Double> composition = new HashMap<>(this.compositionMap);
         double airPercentage = 1 - totalPercentage;
+        DecimalFormat df = new DecimalFormat("#.##");
+        airPercentage = Double.valueOf(df.format(airPercentage));
         if(totalPercentage < 1){
             composition.put(XMaterial.AIR, airPercentage);
             this.totalPercentage = 1;
@@ -105,6 +129,12 @@ public class Composition implements ConfigurationSerializable {
     @Override
     public Map<String, Object> serialize() {
         Map<String,Object> me = new HashMap<>();
+        if(surface!=null) {
+            me.put("surface", this.surface.toString());
+        }
+        else {
+            me.put("surface","");
+        }
         me.put("blocks", parseString());
         return me;
     }

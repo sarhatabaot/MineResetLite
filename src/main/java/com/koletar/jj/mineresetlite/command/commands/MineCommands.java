@@ -237,8 +237,8 @@ public class MineCommands {
         if (mines[0].getResetWarnings().size() > 0) {
             sender.sendMessage(phrase("mineInfoWarningTimes", StringTools.buildList(mines[0].getResetWarnings(), "", ", ")));
         }
-        if (mines[0].getSurface() != null) {
-            sender.sendMessage(phrase("mineInfoSurface", mines[0].getSurface()));
+        if (mines[0].getComposition().getSurface() != null) {
+            sender.sendMessage(phrase("mineInfoSurface", mines[0].getComposition().getSurface()));
         }
         if (mines[0].getFillMode()) {
             sender.sendMessage(phrase("mineInfoFillMode"));
@@ -247,13 +247,24 @@ public class MineCommands {
 
     private boolean invalidMines(CommandSender sender, Mine[] mines) {
         if (mines.length > 1) {
-            sender.sendMessage(phrase("tooManyMines", plugin.toString(mines)));
+            sender.sendMessage(phrase("tooManyMines", stringMineList(mines)));
             return true;
         } else if (mines.length == 0) {
             sender.sendMessage(phrase("noMinesMatched"));
             return true;
         }
         return false;
+    }
+    private String stringMineList(Mine[] mines) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < mines.length; i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            Mine mine = mines[i];
+            sb.append(mine.getName());
+        }
+        return sb.toString();
     }
 
     private boolean isMaterial(Material material, CommandSender sender) {
@@ -524,13 +535,12 @@ public class MineCommands {
         }
 
         if (m.parseMaterial().equals(Material.AIR)) {
-            mines[0].setSurface(null);
+            mines[0].getComposition().setSurface(null);
             sender.sendMessage(phrase("surfaceBlockCleared", mines[0]));
             plugin.buffSave();
             return;
         }
-        //SerializableBlock block = new SerializableBlock(m.getId(), data);
-        mines[0].setSurface(m);
+        mines[0].getComposition().setSurface(m);
         sender.sendMessage(phrase("surfaceBlockSet", mines[0]));
         plugin.buffSave();
     }
@@ -544,6 +554,7 @@ public class MineCommands {
             try {
                 warnings.add(Integer.valueOf(bit));
             } catch (NumberFormatException nfe) {
+                /* TODO: Useful message, cannot set warning to more than reset delay.. wrong format use commas.. */
                 sender.sendMessage(phrase("badWarningList"));
                 return;
             }

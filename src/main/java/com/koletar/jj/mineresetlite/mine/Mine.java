@@ -36,7 +36,7 @@ public class Mine implements ConfigurationSerializable {
     private Position minPos;
     private Position maxPos;
 
-    private XMaterial surface;
+    //private XMaterial surface;
     private Composition composition;
 
     private boolean fillMode;
@@ -110,9 +110,10 @@ public class Mine implements ConfigurationSerializable {
                 throw new IllegalArgumentException("Non-numeric reset warnings supplied");
             }
         }
+        /*
         if (me.containsKey("surface") && !me.get("surface").equals("")) {
             surface = XMaterial.fromString((String) me.get("surface"));
-        }
+        }*/
         if (me.containsKey("fillMode")) {
             fillMode = (Boolean) me.get("fillMode");
         }
@@ -181,12 +182,12 @@ public class Mine implements ConfigurationSerializable {
         me.put("name", this.name);
         me.put("maxPos", this.maxPos.serialize());
         me.put("minPos", this.minPos.serialize());
-
+        /*
         if (this.surface != null) {
             me.put("surface", this.surface.toString());
         } else {
             me.put("surface", "");
-        }
+        }*/
         me.put("composition", this.composition.serialize());
 
         me.put("fillMode", this.fillMode);
@@ -249,14 +250,14 @@ public class Mine implements ConfigurationSerializable {
     public int getTimeUntilReset() {
         return resetClock;
     }
-
+    /*
     public XMaterial getSurface() {
         return surface;
     }
 
     public void setSurface(XMaterial surface) {
         this.surface = surface;
-    }
+    }*/
 
     public World getWorld() {
         return world;
@@ -382,8 +383,12 @@ public class Mine implements ConfigurationSerializable {
             for (int y = minPos.getY(); y <= maxPos.getY(); ++y) {
                 for (int z = minPos.getZ(); z <= maxPos.getZ(); ++z) {
                     if (!fillMode || world.getBlockAt(x, y, z).getType() == Material.AIR) {
-                        setSurfaceBlocks(x,y,z);
-                        generateRandomBlock(rand,probabilityMap,x,y,z);
+                        if(y== maxPos.getY()&& composition.getSurface() !=null) {
+                            setSurfaceBlocks(x, y, z);
+                        }
+                        else {
+                            generateRandomBlock(rand, probabilityMap, x, y, z);
+                        }
                     }
                 }
             }
@@ -409,11 +414,9 @@ public class Mine implements ConfigurationSerializable {
      * @param z     z
      */
     private void setSurfaceBlocks(int x,int y, int z){
-        if(y== maxPos.getY()&& surface !=null){
-            Block block = world.getBlockAt(x,y,z);
-            block.setType(surface.parseMaterial());
-            block.setData((byte)surface.getData());
-        }
+        Block block = world.getBlockAt(x,y,z);
+        block.setType(composition.getSurface().parseMaterial());
+        block.setData((byte)composition.getSurface().getData());
     }
 
     public void cron() {
