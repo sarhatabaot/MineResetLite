@@ -43,6 +43,7 @@ import java.util.logging.Logger;
  */
 public class MineResetLite extends JavaPlugin {
 	public List<Mine> mines;
+
 	private Logger logger;
 	private CommandManager commandManager;
 	private WorldEditPlugin worldEdit;
@@ -112,8 +113,7 @@ public class MineResetLite extends JavaPlugin {
 		if(Config.getCheckForUpdates()){
 			SimpleUpdateChecker checker = new SimpleUpdateChecker(this);
 			Bukkit.getServer().getScheduler().runTask(this,checker);
-			updateTask = Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(
-					this, checker,20 * 15);
+			//updateTask = Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(this, checker,20 * 15);
 			logger.info("Check for update done.");
 		}
 		// MineReset Task
