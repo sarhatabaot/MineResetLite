@@ -25,31 +25,31 @@ public class MineData {
 
     private static final Composition TEST_COMPOSITION = new Composition(TEST_COMPOSITION_MAP);
 
-    public static Position getTEST_MINPOS() {
+    public static Position getTestMinpos() {
         return TEST_MINPOS;
     }
 
-    public static Position getTEST_MAXPOS() {
+    public static Position getTestMaxpos() {
         return TEST_MAXPOS;
     }
 
-    public static TeleportPosition getTEST_TPPOS() {
+    public static TeleportPosition getTestTppos() {
         return TEST_TPPOS;
     }
 
-    public static String getTEST_MINE_NAME() {
+    public static String getTestMineName() {
         return TEST_MINE_NAME;
     }
 
-    public static Mine getTEST_MINE() {
+    public static Mine getTestMine() {
         return TEST_MINE;
     }
 
-    public static Map<XMaterial, Double> getTEST_COMPOSITION_MAP() {
+    public static Map<XMaterial, Double> getTestCompositionMap() {
         return TEST_COMPOSITION_MAP;
     }
 
-    public static Composition getTEST_COMPOSITION() {
+    public static Composition getTestComposition() {
         return TEST_COMPOSITION;
     }
 
