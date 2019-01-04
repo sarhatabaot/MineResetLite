@@ -408,7 +408,7 @@ public class Mine implements ConfigurationSerializable {
         }
     }
     /**
-     * Sets the surface blocks, if surface is set.
+     * Sets the surface blocks.
      * @param x     x
      * @param y     y
      * @param z     z
@@ -419,6 +419,10 @@ public class Mine implements ConfigurationSerializable {
         block.setData((byte)composition.getSurface().getData());
     }
 
+    /**
+     * Runs every minute
+     * Should this be here? It should be in MineResetLite?
+     */
     public void cron() {
         if (resetDelay == 0) {
             return;
