@@ -412,6 +412,26 @@ public class MineCommands {
         }
     }
 
+    @Command(
+            aliases = {"resetall","rall"},
+            description = "Reset all mines",
+            help = {"If you supply -s argument the mines will silently reset."},
+            usage = "(-s)",
+            permissions = {"mineresetlite.mine.resetall"},
+            min = 0, max = -1, onlyPlayers = false
+    )
+    public void resetAllMines(CommandSender sender,String[] args){
+        for(Mine mine: plugin.mines){
+            if(args.length > 0 && args[0].equalsIgnoreCase("-s")){
+                mine.reset();
+            } else {
+                MineResetLite.broadcast(phrase("mineResetBroadcast",mine,sender),mine);
+                mine.reset();
+            }
+
+        }
+    }
+
     /**
      * flag command
      *
