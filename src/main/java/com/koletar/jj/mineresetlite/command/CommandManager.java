@@ -57,6 +57,7 @@ public class CommandManager {
         }
         showHelpByPermission(sender);
     }
+
     private void showHelpByPermission(CommandSender sender){
         List<Method> seenMethods = new LinkedList<>();
         for (Map.Entry<String, Method> entry : commands.entrySet()) {
@@ -72,6 +73,7 @@ public class CommandManager {
             }
         }
     }
+
     private boolean checkPermission(Command command, CommandSender sender) {
         boolean hasPermission = false;
         if(command.permissions().length == 0) {
@@ -84,6 +86,7 @@ public class CommandManager {
         }
         return hasPermission;
     }
+
     public void callCommand(String cmdName, CommandSender sender, String[] args) {
         Method method = commands.get(cmdName.toLowerCase());
 

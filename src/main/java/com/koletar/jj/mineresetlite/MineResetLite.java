@@ -16,7 +16,6 @@ import com.koletar.jj.mineresetlite.util.Phrases;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -27,7 +26,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
-import org.bukkit.scheduler.BukkitTask;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -48,8 +46,7 @@ public class MineResetLite extends JavaPlugin {
 	private CommandManager commandManager;
 	private WorldEditPlugin worldEdit;
 	private int saveTaskId = -1;
-	private int resetTaskId = -1;
-	private BukkitTask updateTask = null;
+	private int mineResetTaskId = -1;
 	private boolean needsUpdate;
 
 	private String newVersion;
@@ -113,12 +110,9 @@ public class MineResetLite extends JavaPlugin {
 		if(Config.getCheckForUpdates()){
 			SimpleUpdateChecker checker = new SimpleUpdateChecker(this);
 			Bukkit.getServer().getScheduler().runTask(this,checker);
-			//updateTask = Bukkit.getServer().getScheduler().runTaskLaterAsynchronously(this, checker,20 * 15);
 			logger.info("Check for update done.");
 		}
-		// MineReset Task
-		// reset task - every minute
-		resetTaskId = getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
+		mineResetTaskId = getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
 			for (Mine mine : mines) {
 				mine.cron();
 			}
@@ -182,11 +176,8 @@ public class MineResetLite extends JavaPlugin {
 	}
 	
 	public void onDisable() {
-		getServer().getScheduler().cancelTask(resetTaskId);
+		getServer().getScheduler().cancelTask(mineResetTaskId);
 		getServer().getScheduler().cancelTask(saveTaskId);
-		if (updateTask != null) {
-			updateTask.cancel();
-		}
 		HandlerList.unregisterAll(this);
 		//save();
 		logger.info("MineResetLite disabled");

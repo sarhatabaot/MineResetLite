@@ -36,7 +36,6 @@ public class Mine implements ConfigurationSerializable {
     private Position minPos;
     private Position maxPos;
 
-    //private XMaterial surface;
     private Composition composition;
 
     private boolean fillMode;

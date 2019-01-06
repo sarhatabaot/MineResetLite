@@ -417,7 +417,7 @@ public class MineCommands {
             description = "Reset all mines",
             help = {"If you supply -s argument the mines will silently reset."},
             usage = "(-s)",
-            permissions = {"mineresetlite.mine.resetall"},
+            permissions = {"mineresetlite.mine.reset.all"},
             min = 0, max = -1, onlyPlayers = false
     )
     public void resetAllMines(CommandSender sender,String[] args){
