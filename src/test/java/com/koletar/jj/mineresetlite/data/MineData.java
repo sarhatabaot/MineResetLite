@@ -19,7 +19,8 @@ public class MineData {
     private static final TeleportPosition TEST_TPPOS = new TeleportPosition(11,12,13,14,15);
     private static final String TEST_MINE_NAME = "TEST";
 
-    private static final Mine TEST_MINE = new Mine(TEST_MINPOS,TEST_MAXPOS,TEST_MINE_NAME,null);
+    private static final Mine TEST_MINE1 = new Mine(TEST_MINPOS,TEST_MAXPOS,TEST_MINE_NAME,null);
+    private static final Mine TEST_MINE2 = new Mine(new Position(23,25,26), new Position(34,38,68), "test2", null);
 
     private static final Map<XMaterial,Double> TEST_COMPOSITION_MAP = createCompositionMap();
 
@@ -41,8 +42,12 @@ public class MineData {
         return TEST_MINE_NAME;
     }
 
-    public static Mine getTestMine() {
-        return TEST_MINE;
+    public static Mine getTestMine(int mine) {
+        if (mine == 1)
+            return TEST_MINE1;
+        if(mine==2)
+            return TEST_MINE2;
+        return null;
     }
 
     public static Map<XMaterial, Double> getTestCompositionMap() {
