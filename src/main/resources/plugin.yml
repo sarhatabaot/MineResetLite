@@ -8,3 +8,29 @@ commands:
   mineresetlite:
     aliases: [mrl, mr, mine, minereset]
     description: Manage mines.
+permissions:
+  mineresetlite.about:
+    default: op
+  mineresetlite.mine.list:
+    default: op
+  mineresetlite.mine.create:
+    default: op
+  mineresetlite.mine.info:
+    default: op
+  mineresetlite.mine.composition:
+    default: op
+  mineresetlite.mine.reset:
+    default: op
+    children:
+      mineresetlite.mine.reset.all: true
+  mineresetlite.mine.flag:
+    default: op
+  mineresetlite.mine.erase:
+    default: op
+  mineresetlite.mine.tp:
+    default: op
+  mineresetlite.mine.settp:
+    default: op
+  mineresetlite.mine.removetp:
+    default: op
+
